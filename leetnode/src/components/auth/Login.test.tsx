@@ -3,10 +3,7 @@ import { render, screen, fireEvent, waitFor, act } from "@testing-library/react"
 import userEvent from "@testing-library/user-event";
 import axios from "axios";
 import { useMutation } from "@tanstack/react-query";
-import { signIn } from "next-auth/react";
 import Login from "./Login";
-// At the top of your test file, add the following import:
-import { UseMutationResult, UseMutationOptions } from "@tanstack/react-query";
 
 jest.mock("axios");
 jest.mock("next-auth/react", () => ({
@@ -46,27 +43,32 @@ describe("Login Component", () => {
         render(<Login setLoginMenuOpened={mockSetLoginMenuOpened} />);
         
         // Mock the axios.post function to simulate a response
-        (axios.post as jest.Mock).mockResolvedValue({
+        const axiosPostMock = jest.spyOn(axios, 'post');
+        let response = {
             data: {
             customToast: true,
-            emailAllowed: true,
+            emailAllowed: false,
             isNewUser: true,
             },
-        });
-    
+        };
+        axiosPostMock.mockResolvedValue(response);
+        
         // Simulate user entering an email address
         const emailInput = screen.getByPlaceholderText('Invite Email');
-        userEvent.type(emailInput, 'test@gmail.com');
+        let emailAddress = 'test@gmail.com';
+        userEvent.type(emailInput, emailAddress);
         
         // Simulate clicking the "Get Link" button
         const getLinkButton = screen.getByText('Get Link');
         userEvent.click(getLinkButton);
         
-        // Use waitFor to check if loading is displayed and the form is reset
-        // await waitFor(() => {
-        //     expect(screen.getByText('Loading...')).toBeTruthy();
-        //     // expect(emailInput).toHaveValue('');
-        // });
+        axios.post(`/api/auth/isEmailAllowed?email=${emailAddress}`);
+        expect(axios.post).toHaveBeenCalledWith(`/api/auth/isEmailAllowed?email=${emailAddress}`);
+        
+        await waitFor(() => {
+            // Assert that toast messages are displayed correctly
+            expect(screen.findByText(`Verification successful! Check your inbox and junk mail for the magic link!\n\nVerified:\n${emailAddress}`)).toBeTruthy();
+        });
     });
     
     it("handles joining the waitlist", async () => {
@@ -77,16 +79,15 @@ describe("Login Component", () => {
 
         // Simulate user entering an email address
         const emailInput = screen.getByPlaceholderText('Invite Email');
-        userEvent.type(emailInput, 'test@gmail.com');
+        let emailAddress = 'test@gmail.com';
+        userEvent.type(emailInput, emailAddress);
 
         // Simulate clicking the "Join Waitlist" button
         const joinWaitlistButton = screen.getByText('Join Waitlist');
         userEvent.click(joinWaitlistButton);
 
-        // // Use waitFor to check if loading is displayed and the form is reset
-        // await waitFor(() => {
-        // expect(screen.getByText('Loading...')).toBeInTheDocument();
-        // expect(emailInput).toHaveValue('');
-        // });
+        await waitFor(() => {
+            expect(screen.findByText(`Verification successful! Check your inbox and junk mail for the magic link!\n\nVerified:\n${emailAddress}`)).toBeTruthy();
+        });
     });
 });
