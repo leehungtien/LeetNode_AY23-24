@@ -53,7 +53,7 @@ jobs:
       #     python tdd/skills_integration_tests.py
       #     python tdd/unit_testing.py
 
-    deploy-to-vercel:
+  deploy-to-vercel:
     needs: build-and-test
     runs-on: ubuntu-latest
     steps:
