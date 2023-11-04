@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
+// import { Dispatch, SetStateAction, useState } from "react";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import axios from "axios";
@@ -13,11 +13,10 @@ jest.mock("next-auth/react", () => ({
     signIn: jest.fn(),
 }));
 jest.mock("@tanstack/react-query");
-jest.mock("./Courses");
+jest.mock("@/components/editor/VariablesBox");
+jest.mock("@/components/Latex");
 
 describe("Login Component", () => {
-    // let mockDispatch = jest.fn(() => useState(true));
-
     beforeEach(() => {
         // Reset the mocked functions before each test.
         jest.clearAllMocks();

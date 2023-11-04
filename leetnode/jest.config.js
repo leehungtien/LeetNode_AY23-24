@@ -1,23 +1,16 @@
 module.exports = {
-    // preset: 'ts-jest',
-    // testEnvironment: 'jsdom',
-    // moduleNameMapper: {
-    //   '^@/(.*)$': '<rootDir>/src/$1',
-    // },
-    // moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-    // transform: {
-    //   '^.+\\.(ts|tsx)$': 'ts-jest',
-    // },
-    // coverageReporters: ['lcov', 'text'],
-    // collectCoverage: true,
-    // collectCoverageFrom: ['src/**/*.ts', 'src/**/*.tsx'],
     "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "<rootDir>/setupTests.js"
+    ],
     "transform": {
       "^.+\\.jsx?$": "babel-jest",
       "^.+\\.tsx?$": "ts-jest"
     },
     "moduleNameMapper": {
-      "\\.(css|less|scss|sass)$": "identity-obj-proxy"
+      "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+      "^@/components/editor/VariablesBox$": "<rootDir>/src/components/editor/VariablesBox",
+      "^@/components/Latex$": "<rootDir>/src/components/Latex"
     },
     "globals": {
       "NODE_ENV": "test"

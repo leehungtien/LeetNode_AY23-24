@@ -47,7 +47,7 @@ describe("Login Component", () => {
         let response = {
             data: {
             customToast: true,
-            emailAllowed: false,
+            emailAllowed: true,
             isNewUser: true,
             },
         };
