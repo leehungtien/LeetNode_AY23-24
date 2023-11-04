@@ -73,7 +73,7 @@ const Overview = () => {
   if (!users || !courses || !attempts) {
     return (
       <Center className="h-screen">
-        <Loader />
+        <Loader data-testid="loader" />
       </Center>
     );
   }
@@ -140,10 +140,10 @@ const Overview = () => {
                 <IconUserExclamation />
               )}
               <div>
-                <Text size="xs" transform="uppercase" weight={700}>
+                <Text size="xs" transform="uppercase" weight={700} data-testid="studentsToHelp">
                   Students to help
                 </Text>
-                <Text weight={700} size="md">
+                <Text weight={700} size="md" data-testid="numStudentsWithTopicPing">
                   {numStudentsWithTopicPing}/{users.data.length}
                 </Text>
               </div>
@@ -208,7 +208,7 @@ const Overview = () => {
                   .sort(
                     (a, b) =>
                       b.correctCount / b.totalCount -
-                        a.correctCount / a.totalCount || 0
+                      a.correctCount / a.totalCount || 0
                   )
                   .map((topic) => topic.correctCount / topic.totalCount),
                 backgroundColor: theme.fn.rgba(theme.colors.green[4], 0.75),
