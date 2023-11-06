@@ -23,6 +23,11 @@ module.exports = {
     ],
     "transformIgnorePatterns": [
       "/node_modules/(?!@mantine)"
-    ]
+    ],
+    "testMatch": [
+      "**/?(*.)+(spec|test).[tj]s?(x)",
+      "!**/node_modules/**", // Exclude node_modules
+      "!**/src/pages/test.tsx",
+    ],
 };
   
