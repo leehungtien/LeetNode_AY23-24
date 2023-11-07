@@ -35,6 +35,9 @@ jobs:
         with:
           fetch-depth: 0 # This will fetch all history for better caching
 
+      - name: Print Environment Variables
+        run: env
+
       - name: Set up Node.js
         uses: actions/setup-node@v3 
         with:
