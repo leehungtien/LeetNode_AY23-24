@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main # Only trigger on pushes to the main branch
+      - release/CICD_flow
 
 jobs:
   build-and-test:
@@ -21,28 +22,28 @@ jobs:
           node-version: '20' # Adjust to your preferred Node.js version
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --prefix leetnode
 
       - name: Build
-        run: npm run build
+        run: npm run build --prefix leetnode
 
       - name: Test
-        run: npm test # This runs your existing tests
+        run: npm test --prefix leetnode
 
       - name: Lint with Next lint
-        run: npm run lint
+        run: npm run lint --prefix leetnode
 
-  deploy-to-vercel:
-    needs: build-and-test
-    runs-on: ubuntu-latest
+  # deploy-to-vercel:
+  #   needs: build-and-test
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
 
-      - name: Deploy to Vercel
-        uses: vercel/vercel-action@v3
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org: ${{ secrets.VERCEL_ORG }}
-          vercel-project: ${{ secrets.VERCEL_PROJECT }}
+  #     - name: Deploy to Vercel
+  #       uses: vercel/vercel-action@v3
+  #       with:
+  #         vercel-token: ${{ secrets.VERCEL_TOKEN }}
+  #         vercel-org: ${{ secrets.VERCEL_ORG }}
+  #         vercel-project: ${{ secrets.VERCEL_PROJECT }}
