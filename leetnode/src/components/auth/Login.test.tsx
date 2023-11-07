@@ -44,7 +44,7 @@ describe("Login Component", () => {
         
         // Mock the axios.post function to simulate a response
         const axiosPostMock = jest.spyOn(axios, 'post');
-        let response = {
+        const response = {
             data: {
             customToast: true,
             emailAllowed: true,
@@ -55,7 +55,7 @@ describe("Login Component", () => {
         
         // Simulate user entering an email address
         const emailInput = screen.getByPlaceholderText('Invite Email');
-        let emailAddress = 'test@gmail.com';
+        const emailAddress = 'test@gmail.com';
         userEvent.type(emailInput, emailAddress);
         
         // Simulate clicking the "Get Link" button
@@ -79,7 +79,7 @@ describe("Login Component", () => {
 
         // Simulate user entering an email address
         const emailInput = screen.getByPlaceholderText('Invite Email');
-        let emailAddress = 'test@gmail.com';
+        const emailAddress = 'test@gmail.com';
         userEvent.type(emailInput, emailAddress);
 
         // Simulate clicking the "Join Waitlist" button

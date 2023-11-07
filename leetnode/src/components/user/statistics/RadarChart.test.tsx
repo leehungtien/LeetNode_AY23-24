@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import RadarChart from './RadarChart';
 import { Radar } from 'react-chartjs-2';
+import { useMantineTheme } from '@mantine/core';
 
 // Mock the useMantineTheme hook
 jest.mock('@mantine/core', () => ({
@@ -44,7 +45,7 @@ beforeEach(() => {
     colorScheme: 'light',
   };
 
-  jest.spyOn(require('@mantine/core'), 'useMantineTheme').mockReturnValue(mockTheme);
+  (useMantineTheme as jest.Mock).mockReturnValue(mockTheme);
 });
 
 it("renders the RadarChart component", () => {
