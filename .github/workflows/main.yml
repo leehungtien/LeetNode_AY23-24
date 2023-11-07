@@ -3,8 +3,9 @@ name: LeetNode Workflow
 on:
   push:
     branches:
-      - main # Only trigger on pushes to the main branch
+      - main
       - release/CICD_flow
+  workflow_dispatch:
 
 jobs:
   build-and-test:
