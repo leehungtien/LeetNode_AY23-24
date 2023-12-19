@@ -141,11 +141,13 @@ export default function Streak() {
           <Center>
             <Text weight={700} size="lg" className="mr-2">
               #
-              {allUsers
-                ?.map((user: User) => {
-                  return user?.id;
+              {Array.isArray(allUsers)
+                ?allUsers
+                  .map((user: User) => {
+                    return user?.id;
                 })
-                .indexOf(session?.data?.user?.id ?? "") + 1}
+                .indexOf(session?.data?.user?.id ?? "") + 1
+              : '-'}
             </Text>
             <Text weight={500} size="sm" color="dimmed">
               ( {userInfo.points} 🔋)
