@@ -1,4 +1,5 @@
 export default {
+  preset: 'ts-jest',
   testEnvironment: "jsdom",
   testPathIgnorePatterns: [
     "<rootDir>/.next/",
@@ -8,10 +9,23 @@ export default {
   setupFilesAfterEnv: ["<rootDir>/setupTests.js"],
   moduleNameMapper: {
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
-    //"^@/(.*)$": "<rootDir>/src/$1",
+    "^@/(.*)$": "<rootDir>/src/$1"
   },
   transform: {
-    "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest",
+    //"^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest",
     "/^.+.(css|less|scss|sass)$/": "identity-obj-proxy",
+    "^.+\\.(js|jsx|ts|tsx)$": "babel-jest"
   },
 };
+// export default {
+//   testEnvironment: "jsdom",
+//   testPathIgnorePatterns: ["<rootDir>/.next/", "<rootDir>/node_modules/"],
+//   setupFilesAfterEnv: ["<rootDir>/setupTests.js"],
+//   moduleNameMapper: {
+//     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+//   },
+//   transform: {
+//     "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest",
+//     "/^.+.(css|less|scss|sass)$/": "identity-obj-proxy",
+//   },
+// };
