@@ -6,11 +6,9 @@ import { useRouter } from "next/router";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-import Login from "@/components/auth/Login";
-//import Login from '../components/auth/Login';
+import Login from '@/components/auth/Login';
 import { UserData } from "@/components/Header";
 import { RoleBadge } from "@/components/misc/Badges";
-//import { RoleBadge } from "../components/misc/Badges";
 import {
   ActionIcon,
   Box,
@@ -188,7 +186,8 @@ export default function Navbar({
       <Box className={classes.inner}>
         {sidebarOpened !== undefined && setSidebarOpened ? (
           <Flex align="center" gap="xl">
-            <Burger
+            <Burger 
+              data-testid="burger"  
               opened={sidebarOpened}
               onClick={() => setSidebarOpened((o) => !o)}
               color={theme.colors.gray[5]}
@@ -297,8 +296,8 @@ export default function Navbar({
                     ) : (
                       <>
                         <Image
-                          src={userInfo.image || ""}
-                          alt={userInfo.username}
+                          src={userInfo?.image || ""}
+                          alt={userInfo?.username}
                           className="mr-2 rounded-full"
                           width={25}
                           height={25}

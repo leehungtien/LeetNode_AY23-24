@@ -14,8 +14,8 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-import VariablesBox from "@/components/editor/VariablesBox";
-import Latex from "@/components/Latex";
+import VariablesBox from '@/components/editor/VariablesBox';
+import Latex from '@/components/Latex';
 import {
   AttemptsInfoType,
   UsersWithMasteriesAndAttemptsType,
