@@ -82,9 +82,9 @@ export default function QuestionViewer() {
       } else if (sortStatus.columnAccessor === "questionDifficulty") {
         return sortStatus.direction === "asc"
           ? QuestionDifficultyEnum[a.questionDifficulty] -
-              QuestionDifficultyEnum[b.questionDifficulty]
+          QuestionDifficultyEnum[b.questionDifficulty]
           : QuestionDifficultyEnum[b.questionDifficulty] -
-              QuestionDifficultyEnum[a.questionDifficulty];
+          QuestionDifficultyEnum[a.questionDifficulty];
       } else if (sortStatus.columnAccessor === "questionTitle") {
         return sortStatus.direction === "asc"
           ? a.questionTitle.localeCompare(b.questionTitle)
@@ -115,6 +115,7 @@ export default function QuestionViewer() {
           setQuestionAddOpened(true);
           editorHtml.current = "";
         }}
+        data-testid='addbtn'
       >
         <Text className="text-gray-800 dark:text-gray-300">
           + Add New Question
@@ -167,10 +168,9 @@ export default function QuestionViewer() {
             title: "Variant",
             visibleMediaQuery: `(min-width: ${theme.breakpoints.xs}px)`,
             render: (record) =>
-              `${
-                record.variationId === 0
-                  ? "0 (Dynamic)"
-                  : record.variationId === 1
+              `${record.variationId === 0
+                ? "0 (Dynamic)"
+                : record.variationId === 1
                   ? "1 (Static; Base)"
                   : `${record.variationId} (Static)`
               }`,
@@ -243,6 +243,7 @@ export default function QuestionViewer() {
         }}
         sortStatus={sortStatus}
         onSortStatusChange={setSortStatus}
+        data-testid='dataTable'
       />
 
       {/* Question Adder Modal */}
@@ -251,6 +252,7 @@ export default function QuestionViewer() {
         title="New Question"
         opened={questionAddOpened}
         onClose={() => setQuestionAddOpened(false)}
+        data-testid='addModal'
       >
         <QuestionEditor
           setQuestionAddOpened={setQuestionAddOpened}
@@ -340,6 +342,7 @@ export default function QuestionViewer() {
           title="View Question"
           opened={questionViewOpened}
           onClose={() => setQuestionViewOpened(false)}
+          data-testid='viewModal'
         >
           <div
             className="rawhtml"
@@ -360,13 +363,13 @@ export default function QuestionViewer() {
           />
           {(currentQuestion.current.questionData as QuestionDataType)
             .variables && (
-            <VariablesBox
-              variables={
-                (currentQuestion.current.questionData as QuestionDataType)
-                  .variables
-              }
-            />
-          )}
+              <VariablesBox
+                variables={
+                  (currentQuestion.current.questionData as QuestionDataType)
+                    .variables
+                }
+              />
+            )}
         </Modal>
       )}
 
@@ -377,6 +380,7 @@ export default function QuestionViewer() {
           title="Edit Question"
           opened={questionEditOpened}
           onClose={() => setQuestionEditOpened(false)}
+          data-testid='editModal'
         >
           <QuestionEditor
             setQuestionAddOpened={setQuestionAddOpened}
@@ -404,9 +408,8 @@ export default function QuestionViewer() {
 
 const useStyles = createStyles((theme) => ({
   modalHeader: {
-    borderBottom: `1px solid ${
-      theme.colorScheme === "dark" ? theme.colors.dark[5] : theme.colors.gray[2]
-    }`,
+    borderBottom: `1px solid ${theme.colorScheme === "dark" ? theme.colors.dark[5] : theme.colors.gray[2]
+      }`,
     marginBottom: theme.spacing.md,
   },
   modalTitle: {

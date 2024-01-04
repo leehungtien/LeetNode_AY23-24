@@ -33,7 +33,7 @@ export default function Statistics() {
   if (!masteryData || isLoading || isError) {
     return (
       <Center style={{ height: 500 }}>
-        <Loader />
+        <Loader data-testid='loader' />
       </Center>
     );
   }
@@ -67,9 +67,13 @@ export default function Statistics() {
       />
 
       {view === "radar" ? (
-        <RadarChart data={masteryData} />
+        <div data-testid='radar'>
+          <RadarChart data={masteryData} />
+        </div>
       ) : (
-        <MasteryBar data={masteryData} />
+        <div data-testid='bar'>
+          <MasteryBar data={masteryData} />
+        </div>
       )}
     </ScrollArea>
   );
