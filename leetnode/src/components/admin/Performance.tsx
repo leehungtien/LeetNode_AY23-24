@@ -95,6 +95,7 @@ const Performance = () => {
     }
   }, [users, active]);
 
+
   if (!users || !topics) {
     return (
       <Center className="h-screen">
