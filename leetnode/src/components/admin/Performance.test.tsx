@@ -1,5 +1,5 @@
 import { render, screen, act, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+//import userEvent from "@testing-library/user-event";
 import axios from "axios";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Performance from "./Performance";
