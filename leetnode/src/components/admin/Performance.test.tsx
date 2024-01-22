@@ -1,139 +1,233 @@
-class ResizeObserverMock {
-  observe() {
-    // Do nothing
-  }
+import { render, screen, act, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import axios from "axios";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Performance from "./Performance";
 
-  unobserve() {
-    // Do nothing
-  }
+// Mock the axios module
+jest.mock("axios");
 
-  disconnect() {
-    // Do nothing
-  }
+const mockUsersData = {
+  data: [
+    { id: "1", username: "user1 user1", lastActive: new Date(), masteries: [] },
+    { id: "2", username: "user2 user2", lastActive: new Date(), masteries: [] },
+  ],
+};
 
-  // Add more methods if necessary
-  // For example:
-  takeRecords() {
-    return [];
-  }
-}
+const mockTopicsData = [
+  { topicSlug: "topic1", topicName: "Topic 1", topicLevel: 1 },
+  { topicSlug: "topic2", topicName: "Topic 2", topicLevel: 2 },
+];
 
-global.ResizeObserver = ResizeObserverMock;
-global.window = Object.create(window);
-global.window.addEventListener = jest.fn();
-global.window.removeEventListener = jest.fn();
-  
-  import React from 'react';
-  import { render } from '@testing-library/react';
-  import '@testing-library/jest-dom';
-  import Performance from './Performance'; // Adjust the path based on your project structure
-  
-  // Mock any dependencies or APIs used in the component
-  jest.mock('axios');
-  jest.mock('@tanstack/react-query', () => ({
-    ...jest.requireActual('@tanstack/react-query'),
-    useQueries: jest.fn(() => [
-      {
-        data: {
-          data: [
-            {
-              id: '1',
-              username: 'user1',
-              lastActive: new Date(),
-              masteries: [], // Add an empty array for masteries
-              attempts: [], // Add an empty array for attempts
-              // Add other necessary properties for your mock data
-            },
-            // Add more mock users if needed
-          ],
+const queryClient = new QueryClient();
+
+const Wrapper = ({ children }: { children?: React.ReactNode }) => (
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+);
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+describe("Performance component", () => {
+  it('renders Performance component without crashing', async () => {
+    render(
+      <QueryClientProvider client={queryClient}>
+        <Performance />
+      </QueryClientProvider>
+    );
+  });
+
+  test('renders student performance data correctly', async () => {
+    // Mock data for users and topics
+    const mockUsers = {
+      data: [
+        {
+          id: '1',
+          username: 'john_doe',
+          email: 'john@example.com',
+          lastActive: new Date('2022-01-01'),
+          image: 'john_avatar.jpg',
+          attempts: [],
+          masteries: [],
         },
-      },
-      {
-        data: {
-          data: [
-            {
-              topicSlug: 'topic1',
-              topicName: 'Topic 1',
-              // Add other necessary properties for your mock data
-            },
-            // Add more mock topics if needed
-          ],
-        },
-      },
-    ]),
-  }));
+        // Add more mock user data as needed
+      ],
+    };
   
-  describe('Performance Component', () => {
-    afterEach(() => {
-      jest.restoreAllMocks(); // Restore all mocked functions
+    const mockTopics = {
+      data: [
+        {
+          topicSlug: 'topic1',
+          topicName: 'Topic 1',
+          topicLevel: 1,
+        },
+        // Add more mock topic data as needed
+      ],
+    };
+  
+    // Mock the axios.get function used by the component
+    jest.mock('axios');
+    (axios.get as jest.Mock).mockImplementation((url: string) => {
+      if (url === '/api/user/admin') {
+        return Promise.resolve({ data: mockUsers });
+      } else if (url === '/api/topic') {
+        return Promise.resolve({ data: mockTopics });
+      }
+      throw new Error('Unexpected URL');
     });
   
-    test('renders without crashing', () => {
-      render(<Performance />);
+    // Render the component
+    render(
+      <QueryClientProvider client={queryClient}>
+        <Performance />
+      </QueryClientProvider>
+    );
+  
+    // Wait for data loading and rendering
+    await waitFor(() => {
+      // Example assertion: Check if a student's username is displayed
+      const usernameElement = screen.getByText('john_doe');
+      expect(usernameElement).toBeInTheDocument();
+  
+      // Example assertion: Check if the overall correct percentage is displayed
+      const correctPercentageElement = screen.getByText(/Overall correct %/);
+      expect(correctPercentageElement).toBeInTheDocument();
+  
+      // Add more assertions based on your component's structure and expected UI
     });
   });
-  
-  
-////Performance.tsx |      54 |     38.7 |    27.9 |   52.63
-// class ResizeObserverMock {
-//     observe() {
-//       // Do nothing
-//     }
-  
-//     unobserve() {
-//       // Do nothing
-//     }
-  
-//     disconnect() {
-//       // Do nothing
-//     }
-//   }
-  
-//   global.ResizeObserver = ResizeObserverMock;
-  
-//   import React from 'react';
-//   import { render } from '@testing-library/react';
-//   import '@testing-library/jest-dom';
-//   import Performance from './Performance'; // Adjust the path based on your project structure
-  
-//   // Mock any dependencies or APIs used in the component
-//   jest.mock('axios');
-//   jest.mock('@tanstack/react-query', () => ({
-//     ...jest.requireActual('@tanstack/react-query'),
-//     useQueries: jest.fn(() => [
-//       {
-//         data: {
-//           data: [
-//             {
-//               id: '1',
-//               username: 'user1',
-//               lastActive: new Date(),
-//               masteries: [], // Add an empty array for masteries
-//               attempts: [], // Add an empty array for attempts
-//               // Add other necessary properties for your mock data
-//             },
-//             // Add more mock users if needed
-//           ],
-//         },
-//       },
-//       {
-//         data: {
-//           data: [
-//             {
-//               topicSlug: 'topic1',
-//               topicName: 'Topic 1',
-//               // Add other necessary properties for your mock data
-//             },
-//             // Add more mock topics if needed
-//           ],
-//         },
-//       },
-//     ]),
-//   }));
-  
-//   describe('Performance Component', () => {
-//     test('renders without crashing', () => {
-//       render(<Performance />);
-//     });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function getAllUsers() {
+  throw new Error("Function not implemented.");
+}
+// import React from 'react';
+// import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+// import axios from 'axios';
+// import MockAdapter from 'axios-mock-adapter';
+// import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+// import Performance from './Performance';
+// import { DateDiffCalc } from '@/utils/DateDiffCalc';
+// import userEvent from '@testing-library/user-event';
+
+// const queryClient = new QueryClient();
+// const mock = new MockAdapter(axios);
+
+// describe('Performance Component', () => {
+//   beforeEach(() => {
+//     mock.reset();
 //   });
+
+//   it('renders Performance component without crashing', async () => {
+//     const mockUsers = {
+//       data: [
+//         {
+//           id: '1',
+//           username: 'john_doe',
+//           email: 'john.doe@example.com',
+//           lastActive: '2022-01-12T12:00:00.000Z',
+//           image: 'john_doe.jpg',
+//           attempts: [],
+//           masteries: [],
+//         },
+//       ],
+//     };
+
+//     const mockTopics = {
+//       data: [
+//         {
+//           topicSlug: 'math',
+//           topicName: 'Mathematics',
+//           topicLevel: 'Intermediate',
+//         },
+//       ],
+//     };
+
+//     mock.onGet('/api/user/admin').reply(200, mockUsers);
+//     mock.onGet('/api/topic').reply(200, mockTopics);
+
+//     render(
+//       <QueryClientProvider client={queryClient}>
+//         <Performance />
+//       </QueryClientProvider>
+//     );
+//   });
+
+
+//   it('DateDiffCalc returns correct date difference', () => {
+//     const currentDate = new Date();
+//     const pastDate = new Date(currentDate);
+//     pastDate.setDate(currentDate.getDate() - 5);
   
+//     const result = DateDiffCalc(pastDate);
+  
+//     expect(result).toEqual('5 days ago');
+//   });  
+// });
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
