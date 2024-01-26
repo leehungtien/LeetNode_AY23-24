@@ -1,0 +1,68 @@
+name: LeetNode Workflow
+
+on:
+  push:
+    branches:
+      - main
+      - release/CICD_flow
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SHADOW_DATABASE_URL: ${{ secrets.SHADOW_DATABASE_URL }}
+      CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
+      CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+      CLOUDINARY_SECRET: ${{ secrets.CLOUDINARY_SECRET }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      RECOMMENDER_URL: ${{ secrets.RECOMMENDER_URL }}
+      RECOMMENDER_API_KEY: ${{ secrets.RECOMMENDER_API_KEY }}
+      GMAIL: ${{ secrets.GMAIL }}
+      GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
+      EMAIL_SERVER: ${{ secrets.EMAIL_SERVER }}
+      EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+      ACTION_KEY: ${{ secrets.ACTION_KEY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # This will fetch all history for better caching
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3 
+        with:
+          node-version: '20' # Adjust to your preferred Node.js version
+
+      - name: Install dependencies
+        run: npm install --prefix leetnode
+
+      - name: Build
+        run: npm run build --prefix leetnode
+
+      - name: Test
+        run: npm test --prefix leetnode
+
+      - name: Lint with Next lint
+        run: npm run lint --prefix leetnode
+
+  # deploy-to-vercel:
+  #   needs: build-and-test
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+
+  #     - name: Deploy to Vercel
+  #       uses: vercel/vercel-action@v3
+  #       with:
+  #         vercel-token: ${{ secrets.VERCEL_TOKEN }}
+  #         vercel-org: ${{ secrets.VERCEL_ORG }}
+  #         vercel-project: ${{ secrets.VERCEL_PROJECT }}
