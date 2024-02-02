@@ -2,16 +2,14 @@ import React from 'react';
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import userEvent from '@testing-library/user-event';
 import Header from './Header';
 import axios from 'axios';
+import { useSession } from "next-auth/react";
 
-// Mock the NextAuth and axios modules as required
-jest.mock('next-auth/react', () => ({
-    useSession: () => ({ data: { user: { id: 'mockedUserId' } } }),
-}));
 
 jest.mock('axios');
+jest.mock("next-auth/react");
+jest.mock('timers/promises');
 
 jest.mock('next/head', () => {
     return {
@@ -22,7 +20,26 @@ jest.mock('next/head', () => {
     };
 });
 
+const mockData = {
+    id: 1,
+    lastActive: '2024-01-31T23:59:59',
+    loginStreak: 2,
+    points: 10,
+};
+
 describe('Header Component', () => {
+    beforeEach(() => {
+        (useSession as jest.Mock).mockReturnValue({
+            data: {
+                user: {
+                    id: 1,
+                },
+            },
+        });
+
+        (axios.post as jest.Mock).mockResolvedValue({ data: mockData, isLoading: false, isError: false });
+    });
+
     it('check for head title', async () => {
         const queryClient = new QueryClient();
         const title = 'Personalized Path Mastery';
@@ -52,23 +69,20 @@ describe('Header Component', () => {
         );
     });
 
-    // it('post & log lastActive', async () => {
-    //     const queryClient = new QueryClient();
-    //     render(
-    //         <QueryClientProvider client={queryClient}>
-    //             <Header />
-    //         </QueryClientProvider>
-    //     );
+    test('Fetches user info and calls updateActive for consecutive days', async () => {
+        const queryClient = new QueryClient();
 
-    //     // Mock the axios.post method to resolve with a response
-    //     (axios.post as jest.Mock).mockResolvedValueOnce({ data: { lastActive: '2023-10-30T12:00:00Z' } });
+        render(
+            <QueryClientProvider client={queryClient}>
+                <Header />
+            </QueryClientProvider>
+        );
 
-    //     // Verify the axios.post method was called with the correct parameters
-    //     expect(axios.post).toHaveBeenCalledWith('/api/admin/updateLastActive', {
-    //         id: 'mockedUserId',
-    //     });
-
-    //     // Verify the console output
-    //     expect(console.log).toHaveBeenCalledWith('Last Active Updated @', expect.any(Date));
-    // });
+        await Promise.resolve();
+        await waitFor(() => {
+            expect(axios.post).toHaveBeenCalledWith('/api/user', { id: 1 });
+        });
+    });
 });
+
+// npm test Header.test.tsx
