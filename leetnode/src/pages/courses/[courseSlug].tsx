@@ -60,6 +60,7 @@ import {
   IconZoomQuestion,
 } from "@tabler/icons";
 import { useQuery } from "@tanstack/react-query";
+import Chatbot from "@/components/course/Chatbot";
 
 export type CourseInfoType = {
   topics: (Topic & {
@@ -166,9 +167,9 @@ export default function CourseMainPage({
   // If it does, add the width and height attributes to the iframe tag
   const modifiedVideo = hasIframeVideo
     ? courseDetails.video?.replace(
-        /<iframe(.*?)>/g,
-        '<iframe$1 width="100%" height="100%">'
-      )
+      /<iframe(.*?)>/g,
+      '<iframe$1 width="100%" height="100%">'
+    )
     : courseDetails.video;
 
   const parts = courseDetails.markdown?.split(/(<iframe.*?>.*?<\/iframe>)/g);
@@ -251,6 +252,7 @@ export default function CourseMainPage({
                 </Box>
               </Link>
             </Sidebar.Section>
+            <Chatbot />
           </Sidebar>
         ) : (
           <></>
