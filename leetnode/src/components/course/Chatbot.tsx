@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useDisclosure } from '@mantine/hooks';
 import { GoogleGenerativeAI, HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
-import { Dialog, Group, Button, TextInput, Text, ScrollArea, Textarea, Box, Loader, FileInput } from '@mantine/core';
+import { Dialog, Group, Button, Text, ScrollArea, Textarea, Box, Loader, FileInput } from '@mantine/core';
 
 interface Message {
     role: 'You' | 'Bot';
@@ -12,10 +12,10 @@ const Chatbot = () => {
     const [prompt, setPrompt] = useState<string>("")
     const [reply, setReply] = useState<string>("")
     const [fullChat, setFullChat] = useState<Message[]>([{ role: 'Bot', parts: 'Great to meet you! How can I help you?' }])
-    const [opened, { toggle, close }] = useDisclosure(false);
+    const [opened, { toggle, close }] = useDisclosure(false)
     const [loading, setLoading] = useState(false)
-
     const messagesEndRef = useRef<HTMLDivElement>(null)
+
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
     }
@@ -63,21 +63,21 @@ const Chatbot = () => {
     const chatlog = async (e: any) => {
         e.preventDefault();
         setLoading(true);
-        setReply("")
+        setReply("");
 
         const updatedChat: Message[] = [...fullChat];
-        const model = genAI.getGenerativeModel({ model: "gemini-pro-vision", safetySettings, generationConfig });
-        const chat = model.startChat();
 
         const fileInputEl = document.querySelector("input[type=file]") as HTMLInputElement;
         const imageParts = await Promise.all(
             [...fileInputEl.files as FileList].map(fileToGenerativePart)
         );
-
         const typedImageParts = imageParts as { inlineData: { data: string; mimeType: string; }; }[];
 
+        const model = genAI.getGenerativeModel({ model: fileInputEl.files?.length ? "gemini-pro-vision" : "gemini-pro", safetySettings, generationConfig });
+        const chat = model.startChat();
+
         updatedChat.push({ role: 'You', parts: prompt });
-        const result = await chat.sendMessageStream([prompt, ...typedImageParts]);
+        const result = await chat.sendMessageStream(fileInputEl.files?.length ? [prompt, ...typedImageParts] : [prompt]);
 
         let text = '';
         for await (const chunk of result.stream) {
@@ -108,7 +108,7 @@ const Chatbot = () => {
                     Smart Bot
                 </Text>
 
-                <ScrollArea h={500} my="lg" pr="md" scrollbarSize={6}>
+                <ScrollArea h={410} my="lg" pr="md" scrollbarSize={6}>
                     {loading ? reply : fullChat.map((msg) => (
                         <Box key={msg.role} className="my-5">
                             <Text size="md" fw={600} color={msg.role == "Bot" ? "cyan" : "orange"}>
@@ -122,15 +122,20 @@ const Chatbot = () => {
                     <div ref={messagesEndRef} />
                 </ScrollArea>
 
-                <Group align="flex-end">
-                    <form onSubmit={(e) => { chatlog(e); setPrompt(""); }} className="flex flex-col gap-2">
-                        <Textarea placeholder="Type your prompt" value={prompt} onChange={(e) => promptChange(e)} style={{ width: "270%" }} />
-                        {/* <input type="file" accept="image/*" /> */}
-                        <FileInput placeholder="Upload Image" />
-                    </form>
-                    <Button onClick={(e) => { chatlog(e); setPrompt(""); }}>
-                        {loading ? <Loader color="white" /> : "Submit"}
-                    </Button>
+                <Group className="flex flex-col justify-evenly">
+                    <Textarea minRows={4} maxRows={4}
+                        placeholder="Type your prompt"
+                        value={prompt}
+                        onChange={(e) => promptChange(e)}
+                        onKeyDown={(e) => { if (e.key === "Enter") { chatlog(e); setPrompt(""); } }}
+                        className="w-full"
+                    />
+                    <Box className="w-full flex justify-evenly">
+                        <FileInput placeholder="Upload Image" clearable />
+                        <Button onClick={(e) => { chatlog(e); setPrompt(""); }} >
+                            {loading ? <Loader color="white" /> : "Submit"}
+                        </Button>
+                    </Box>
                 </Group>
             </Dialog >
         </>
