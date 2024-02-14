@@ -7,6 +7,7 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { HumanMessage } from "@langchain/core/messages";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
+import { RunnableSequence, RunnablePassthrough } from "@langchain/core/runnables";
 interface Message {
     role: 'You' | 'Bot';
     parts: string;
@@ -17,7 +18,7 @@ const Chatbot = () => {
     const [reply, setReply] = useState<string>("")
     const [fullChat, setFullChat] = useState<Message[]>([{ role: 'Bot', parts: 'Great to meet you! How can I help you?' }])
     const [opened, { toggle, close }] = useDisclosure(false)
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState<boolean>(false)
 
     //Scroll to bottom after every response
     const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -57,7 +58,7 @@ const Chatbot = () => {
         );
         const typedImageParts = imageParts as { inlineData: { data: string; mimeType: string; }; }[];
 
-        //LLM config
+        // LLM config
         const safetySettings = [
             {
                 category: HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -78,15 +79,18 @@ const Chatbot = () => {
         ];
         const llm = new ChatGoogleGenerativeAI({
             modelName: fileInputEl.files?.length ? "gemini-pro-vision" : "gemini-pro",
-            maxOutputTokens: 2048,
+            maxOutputTokens: 500,
+            // maxOutputTokens: 2048,
             safetySettings,
             cache: true,
+            temperature: 0.5,
             apiKey: "AIzaSyCaV5djusWE31J5Atgd71eqpHhN6Uwmy2E"
         });
 
-        updatedChat.push({ role: 'You', parts: prompt });
+        //Prompt templates
+        // const standalonePromptTemplate = 'Given a prompt, convert it to a standalone prompt. Prompt: {input} Standalone prompt:'
+        const systemTemplate = `You are a professor in a prestigious university. Input: {input}`
 
-        //Prompt
         const input =
             new HumanMessage({
                 content: fileInputEl.files?.length
@@ -109,23 +113,26 @@ const Chatbot = () => {
                     ],
             });
 
-        const promptTemplate = ChatPromptTemplate.fromMessages([
-            ["system", `You are a world class electrical engineer and now you have became a professor in a prestigious university. Reply the student {input} in a clear and concise and as detailed as possible, but making sure a 10 years old child can understand. 
-
-            Show your reply in point form.
-            Format example:
-            1.
-            2.
-            3.
-
-            Important: produce only a single linefeed at the end of lines, no blank lines are permitted between roles.`
-            ],
-            input,
+        // const standalonePromptChain = PromptTemplate.fromTemplate(standalonePromptTemplate);
+        const chatPromptChain = ChatPromptTemplate.fromMessages([
+            ["system", systemTemplate],
+            input
         ]);
-        const chain = promptTemplate.pipe(llm).pipe(outputParser);
+
+        // const chain = RunnableSequence.from([
+        //     // standalonePromptChain,
+        //     // llm,
+        //     // new StringOutputParser(),
+        //     // { standalonePrompt: prev => prev },
+        //     chatPromptChain,
+        //     llm,
+        //     new StringOutputParser()
+        // ])
+
+        const chain = chatPromptChain.pipe(llm).pipe(outputParser);
 
         const res = await chain.stream({
-            input: input,
+            input: input
         });
 
         let text = '';
@@ -134,6 +141,7 @@ const Chatbot = () => {
             setReply(text);
         };
 
+        updatedChat.push({ role: 'You', parts: prompt });
         updatedChat.push({ role: 'Bot', parts: text });
         setFullChat(updatedChat);
         setLoading(false);
@@ -145,22 +153,29 @@ const Chatbot = () => {
                 <Button onClick={toggle}>Smart Bot</Button>
             </Group>
 
-            <Dialog opened={opened} withCloseButton onClose={close} radius="md" size="xl">
+            <Dialog opened={opened} withCloseButton onClose={close} radius="md" size="40rem">
                 <Text size="xl" mb="xs" fw={700} color="cyan">
                     Smart Bot
                 </Text>
 
-                <ScrollArea h={410} my="lg" pr="md" scrollbarSize={6} className="text-justify">
-                    {loading ? reply : fullChat.map((msg) => (
-                        <Box key={msg.role} className="my-5">
-                            <Text size="md" fw={600} color={msg.role == "Bot" ? "cyan" : "orange"}>
-                                {msg.role}
-                            </Text>
-                            <p>
-                                {msg.parts}
+                <ScrollArea h={430} my="md" pr="md" scrollbarSize={6} className="text-justify mx-2">
+                    {loading
+                        ? <Box className="mt-5">
+                            <p className="px-4 py-2 bg-neutral-100 rounded-md leading-8">
+                                {reply}
                             </p>
                         </Box>
-                    ))}
+
+                        : fullChat.map((msg) => (
+                            <Box key={msg.role} className="mt-5">
+                                <Text size="md" fw={600} color={msg.role == "Bot" ? "cyan" : "orange"}>
+                                    {msg.role}
+                                </Text>
+                                <p className="px-4 py-2 bg-neutral-100 rounded-md leading-8">
+                                    {msg.parts}
+                                </p>
+                            </Box>
+                        ))}
                     <div ref={messagesEndRef} />
                 </ScrollArea>
 
