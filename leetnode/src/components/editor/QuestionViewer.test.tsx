@@ -25,9 +25,9 @@ jest.mock('remark-math', () => {
 });
 
 class ResizeObserver {
-    observe() { }
-    unobserve() { }
-    disconnect() { }
+    observe() { return }
+    unobserve() { return }
+    disconnect() { return }
 }
 
 const mockQn = [{

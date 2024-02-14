@@ -10,9 +10,9 @@ jest.mock("axios");
 jest.mock("next-auth/react");
 
 class ResizeObserver {
-    observe() { }
-    unobserve() { }
-    disconnect() { }
+    observe() { return }
+    unobserve() { return }
+    disconnect() { return }
 }
 
 const mockData = [
