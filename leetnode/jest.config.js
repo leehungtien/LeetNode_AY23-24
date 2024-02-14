@@ -1,15 +1,15 @@
 module.exports = {
     "testEnvironment": 'jest-environment-jsdom',
-    "preset": 'ts-jest',
+    // "preset": 'ts-jest',
     "setupFilesAfterEnv": [
         "<rootDir>/setupTests.js"
     ],
     "transform": {
-        '^.+\\.(ts|tsx)?$': 'ts-jest',
+        '^.+\\.(ts|tsx)?$': ['ts-jest', { tsconfig: 'tsconfig.test.json', }],
         '^.+\\.(js|jsx)$': 'babel-jest',
         '\\.js$': 'babel-jest',
         "^.+\\.jsx?$": "babel-jest",
-        "^.+\\.tsx?$": "ts-jest"
+        // "^.+\\.tsx?$": ['ts-jest', { tsconfig: 'tsconfig.test.json', }],
     },
     "moduleNameMapper": {
         '^@/(.*)$': '<rootDir>/src/$1',
@@ -17,12 +17,12 @@ module.exports = {
         "^@/components/(.*)$": "<rootDir>/src/components/$1",
         'react-markdown': '<rootDir>/node_modules/react-markdown/react-markdown.min.js',
         "^@/components/editor/VariablesBox$": "<rootDir>/src/components/editor/VariablesBox",
-      "\\.(css|less|scss|sass)$": "identity-obj-proxy",
-      "^@/components/editor/VariablesBox$": "<rootDir>/src/components/editor/VariablesBox",
-      "^@/components/Latex$": "<rootDir>/src/components/Latex",
+        "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+        "^@/components/editor/VariablesBox$": "<rootDir>/src/components/editor/VariablesBox",
+        "^@/components/Latex$": "<rootDir>/src/components/Latex",
     },
     "globals": {
-        "NODE_ENV": "test"
+        "NODE_ENV": "test",
     },
     "moduleDirectories": ['<rootDir>/node_modules', '<rootDir>/src', '<rootDir>/src/pages'],
     "testPathIgnorePatterns": [

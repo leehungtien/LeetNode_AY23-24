@@ -6,11 +6,6 @@
       "dom.iterable",
       "esnext"
     ],
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -26,7 +21,7 @@
       "jest",
       "@testing-library/jest-dom"
     ],
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "incremental": true,
     "noUncheckedIndexedAccess": true,
     "baseUrl": ".",
