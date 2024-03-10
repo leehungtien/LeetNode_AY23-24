@@ -76,7 +76,9 @@ const Settings = () => {
   if (!users || !topics) {
     return (
       <Center className="h-screen">
-        <Loader />
+        <div data-testid="loader">
+          <Loader />
+        </div>
       </Center>
     );
   }
