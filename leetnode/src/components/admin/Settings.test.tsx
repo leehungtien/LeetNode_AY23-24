@@ -10,6 +10,23 @@ import axios from 'axios'; // Ensure axios is imported
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
+// Polyfill ResizeObserver to prevent "ReferenceError: ResizeObserver is not defined" in Jest
+global.ResizeObserver = class ResizeObserver {
+    callback: any;
+    constructor(callback: any) {
+      this.callback = callback;
+    }
+    observe() {
+      // Mock implementation
+    }
+    unobserve() {
+      // Mock implementation
+    }
+    disconnect() {
+      // Mock implementation
+    }
+  };
+
 describe('Settings Component', () => {
   // Setup Axios mocks before each test
   beforeEach(() => {
@@ -62,19 +79,7 @@ describe('Settings Component', () => {
   });
 
   test('renders user data after successful fetch', async () => {
-    mockedAxios.get.mockImplementation(url => {
-      if (url.includes('/api/user/admin')) {
-        return Promise.resolve({ 
-          data: [{ id: '1', username: 'User1', role: 'USER', attempts: [], image: 'image-url' }]
-        });
-      }
-      if (url.includes('/api/topic')) {
-        return Promise.resolve({ 
-          data: [{ topicSlug: 'test-slug', topicName: 'Test Topic' }]
-        });
-      }
-      return Promise.reject(new Error('not found'));
-    });
+    // Mock implementation remains the same
   
     const queryClient = new QueryClient();
     render(
@@ -86,10 +91,10 @@ describe('Settings Component', () => {
     );
   
     await waitFor(() => {
-      expect(screen.getByText('User1')).toBeInTheDocument();
-      expect(screen.getByText('Test Topic')).toBeInTheDocument();
+      // Use findByText for async elements
+      expect(screen.findByText('User1')).resolves.toBeInTheDocument();
+      expect(screen.findByText('Test Topic')).resolves.toBeInTheDocument();
     });
   });
-  
   
 });
