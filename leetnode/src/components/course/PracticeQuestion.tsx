@@ -34,6 +34,9 @@ interface UserData extends User {
   attempts: { [timestamp: string]: number };
 }
 
+// import highlighter component
+import Highlighter from './Highlighter';
+
 export type UCQATAnswersType = {
   key: string;
   answerContent: string;
@@ -199,6 +202,8 @@ export default function PracticeQuestion() {
 
   return (
     <Paper p="xl" radius="md" withBorder>
+      {/* Highlighter Component */}
+      <Highlighter />
       <form
         onSubmit={(e) => {
           e.preventDefault();
