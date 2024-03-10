@@ -1,10 +1,11 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Settings from './Settings';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SessionProvider } from 'next-auth/react';
 import axios from 'axios'; // Ensure axios is imported
+import toast from 'react-hot-toast';
 
 // Mock external modules
 jest.mock('axios');
@@ -96,5 +97,4 @@ describe('Settings Component', () => {
       expect(screen.findByText('Test Topic')).resolves.toBeInTheDocument();
     });
   });
-  
 });
