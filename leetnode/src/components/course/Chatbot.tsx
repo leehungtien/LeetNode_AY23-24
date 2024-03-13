@@ -16,7 +16,7 @@ interface Message {
 const Chatbot = () => {
     const [prompt, setPrompt] = useState<string>("")
     const [reply, setReply] = useState<string>("")
-    const [fullChat, setFullChat] = useState<Message[]>([{ role: 'Bot', parts: 'Hi, how can I be of service to you?' }])
+    const [chatHistory, setChatHistory] = useState<Message[]>([{ role: 'Bot', parts: 'Hi, how can I be of service to you?' }])
     const [opened, { toggle, close }] = useDisclosure(false)
     const [loading, setLoading] = useState<boolean>(false)
 
@@ -27,7 +27,7 @@ const Chatbot = () => {
     }
     useEffect(() => {
         scrollToBottom()
-    }, [reply, fullChat]);
+    }, [reply, chatHistory]);
 
     //Save the user input
     const promptChange = (e: any) => {
@@ -43,7 +43,7 @@ const Chatbot = () => {
         setReply("");
 
         const outputParser = new StringOutputParser();
-        const updatedChat: Message[] = [...fullChat];
+        const updatedChat: Message[] = [...chatHistory];
 
         //Image conversion to Base64
         const toBase64 = (file: File) => new Promise((resolve, reject) => {
@@ -87,7 +87,16 @@ const Chatbot = () => {
         });
 
         //Prompt templates
-        const systemTemplate = `You are a professor in a prestigious university. Input: {input}`
+        const systemTemplate = `You are an esteemed professor of Electrical Engineering, specializing in electric circuits, renowned for your ability to demystify complex concepts for your students. Your expertise encompasses fundamental principles such as Kirchhoff's Current Law (KCL) and Kirchhoff's Voltage Law (KVL), among other areas.
+
+        As a dedicated educator, you strive not only to provide accurate answers but also to ensure students grasp the underlying principles. You're known for breaking down sophisticated topics into manageable, clear explanations, often drawing upon real-world examples and authoritative sources to enrich learning.
+        
+        When responding, consider the following:
+        - Begin with a concise and accurate, direct answer to the student's question.
+        
+        Remember, your goal is to foster a deep understanding of electrical engineering concepts, preparing students not just for exams, but for practical application in their future careers.
+        
+        Input: {input}`
 
         const input =
             new HumanMessage({
@@ -118,14 +127,15 @@ const Chatbot = () => {
 
         const chain = chatPromptChain.pipe(llm).pipe(outputParser);
 
-        const transformFullChatToInputFormat = (fullChat: Message[]) => {
-            return fullChat.map(msg => {
+        const transformFullChatToInputFormat = (chatHistory: Message[]) => {
+            return chatHistory.map(msg => {
                 return { type: "text", text: `${msg.role}: ${msg.parts}` };
             });
         };
 
-        const fullChatFormatted = transformFullChatToInputFormat(fullChat);
+        const fullChatFormatted = transformFullChatToInputFormat(chatHistory);
         const combinedInput = [...fullChatFormatted, ...input.content];
+
         const res = await chain.stream({
             input: combinedInput
         });
@@ -138,7 +148,7 @@ const Chatbot = () => {
 
         updatedChat.push({ role: 'You', parts: prompt });
         updatedChat.push({ role: 'Bot', parts: text });
-        setFullChat(updatedChat);
+        setChatHistory(updatedChat);
         setLoading(false);
     }
 
@@ -161,7 +171,7 @@ const Chatbot = () => {
                             </p>
                         </Box>
 
-                        : fullChat.map((msg) => (
+                        : chatHistory.map((msg) => (
                             <Box key={msg.role} className="mt-5">
                                 <Text size="md" fw={600} color={msg.role == "Bot" ? "cyan" : "orange"}>
                                     {msg.role}
