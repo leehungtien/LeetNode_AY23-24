@@ -30,6 +30,8 @@ import { Question, QuestionWithAddedTime, User } from "@prisma/client";
 import { IconBulb } from "@tabler/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import DrawingTool from "../drawing/Canvas";
+
 interface UserData extends User {
   attempts: { [timestamp: string]: number };
 }
@@ -222,6 +224,14 @@ export default function PracticeQuestion() {
           });
         }}
       >
+
+        {/* DRAWING CANVAS TOOL ! */}
+      <DrawingTool/>
+      
+        
+
+        {/* QUESTION BADGE: EASY/MEDIUM/HARD DIFFICULTY + QUESTION + DIAGRAM*/}
+
         <QuestionDifficultyBadge
           questionDifficulty={UCQAT.data.question.questionDifficulty}
           {...{ radius: "lg", size: "md" }}
@@ -240,9 +250,20 @@ export default function PracticeQuestion() {
             }),
           }}
         />
+
+        
+
+
+        {/* VARIABLES BOX */}
+
         <VariablesBox
           variables={UCQAT.data.variables as QuestionDataType["variables"]}
         />
+
+        
+
+        
+
         {correctKeys.length === 1 ? (
           <Radio.Group
             mt="xl"
@@ -335,6 +356,7 @@ export default function PracticeQuestion() {
         </Flex>
 
         {/* Hints Modal */}
+
         <Modal
           opened={hintsOpened}
           onClose={() => setHintsOpened(false)}
@@ -355,6 +377,8 @@ export default function PracticeQuestion() {
             )}
           </Stack>
         </Modal>
+
+        
       </form>
     </Paper>
   );

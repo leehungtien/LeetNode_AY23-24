@@ -1,0 +1,16 @@
+TESTING SYNOLOGY:
+
+
+(MOBILE DATA / WIFI)
+
+LeetNode application hosted on NAS:
+http://eefyp.synology.me:3000
+
+
+
+
+Access the UI of the NAS remotely with this address: 
+http://eefyp.synology.me:5000
+https://eefyp.synology.me:5001
+or
+http://QuickConnect.to/eefyp138
