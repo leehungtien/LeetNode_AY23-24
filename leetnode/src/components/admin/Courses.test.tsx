@@ -24,6 +24,14 @@ global.ResizeObserver = class ResizeObserver {
   jest.mock('rehype-katex', () => () => 'katex');
   jest.mock('rehype-raw', () => () => 'raw');
   jest.mock('remark-math', () => () => 'math');
+  // At the top of your test file, before any test definitions
+  jest.mock('@/components/editor/CustomRichTextEditor', () => {
+    return {
+      __esModule: true,
+      default: () => <div>Mocked Editor Content</div>,
+    };
+  });
+
   // Setup QueryClient for tests
   const createTestQueryClient = () => new QueryClient({
     defaultOptions: {
@@ -71,5 +79,20 @@ global.ResizeObserver = class ResizeObserver {
       // Check if axios was called correctly
       expect(mockedAxios.get).toHaveBeenCalledWith("/api/course");
     });
+
+    it('displays static text correctly', async () => {
+      renderWithProviders(<Courses />);
+    
+      await waitFor(() => {
+        expect(screen.getByText("All Courses")).toBeInTheDocument();
+        expect(screen.getByText("Course 1")).toBeInTheDocument();
+      });
+    });
+    
+    it('debugs the component', async () => {
+      renderWithProviders(<Courses />);
+      screen.debug();
+    });
+    
   });
   
