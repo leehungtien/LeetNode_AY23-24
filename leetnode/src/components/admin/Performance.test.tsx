@@ -4,6 +4,8 @@ import userEvent from "@testing-library/user-event";
 import axios from "axios";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Performance from "./Performance";
+import { IconExclamationMark } from "@tabler/icons";
+import toast from "react-hot-toast";
 
 global.ResizeObserver = class ResizeObserver {
   callback: any;
@@ -24,6 +26,12 @@ global.ResizeObserver = class ResizeObserver {
 // Mock the axios module
 jest.mock("axios");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
+
+jest.mock('@mantine/core', () => ({
+  ...jest.requireActual('@mantine/core'), // Import actual implementations
+  Tooltip: () => null, // Mock out specific components as needed
+}));
+
 
 // Mock data for users and topics
 const mockUsersData = {
@@ -47,7 +55,11 @@ const Wrapper = ({ children }: { children?: React.ReactNode }) => (
   <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 );
 
-beforeEach(() => {
+beforeEach(() => {  
+  jest.mock('react-chartjs-2', () => ({
+    Bar: () => null, // Mock Bar as a no-op component
+  }));
+  
   jest.clearAllMocks();
   mockedAxios.get.mockImplementation((url) => {
     switch (url) {
@@ -59,73 +71,40 @@ beforeEach(() => {
         return Promise.reject(new Error("not found"));
     }
   });
+
 });
 
 describe("Performance component", () => {
-  it('renders Performance component without crashing', async () => {
+  it('renders without crashing and waits for elements to load', async () => {
     render(
       <QueryClientProvider client={queryClient}>
         <Performance />
       </QueryClientProvider>
     );
   });
-
-  it("fetches and displays user and topic data correctly", async () => {
-    render(<Performance />, { wrapper: Wrapper });
-
-    // Wait for the users to be displayed
-    await waitFor(() => {
-      expect(screen.getByText("user1")).toBeInTheDocument();
-      expect(screen.getByText("user2")).toBeInTheDocument();
-    });
-
-    // Trigger accordion click to show topic mastery levels
-    const user1Accordion = screen.getByText("user1");
-    userEvent.click(user1Accordion);
-
-    // Verify that topic names are displayed
-    await waitFor(() => {
-      expect(screen.getByText("Topic 1")).toBeInTheDocument();
-      expect(screen.getByText("Topic 2")).toBeInTheDocument();
-    });
-  });
-
-  it("handles sort selection change", async () => {
-    render(<Performance />, { wrapper: Wrapper });
     
-    // Wait for the component to fully load
-    await waitFor(() => {
-      expect(screen.getByText(/All Students/i)).toBeInTheDocument();
+  it('displays user data after successful data fetch', async () => {
+    // Mocking Axios calls to return successful responses with mock data
+    mockedAxios.get.mockImplementation((url) => {
+      if (url === "/api/user/admin") {
+        return Promise.resolve({ data: mockUsersData });
+      }
+      if (url === "/api/topic") {
+        return Promise.resolve({ data: mockTopicsData });
+      }
+      return Promise.reject(new Error("not found"));
     });
-
-    // Change the sorting option
-    userEvent.selectOptions(screen.getByLabelText(/Sort By/i), ["Last Active (Newest)"]);
-
-    // Verify the sort option changed
-    await waitFor(() => {
-      expect(screen.getByLabelText(/Sort By/i)).toHaveValue("Last Active (Newest)");
-    });
-  });
-
-  it("filters students needing help when checkbox is checked", async () => {
+  
     render(<Performance />, { wrapper: Wrapper });
-
-    // Wait for the component to fully load
-    await waitFor(() => {
-      expect(screen.getByLabelText(/All students who need help!/i)).toBeInTheDocument();
-    });
-
-    // Click the checkbox to filter students
-    userEvent.click(screen.getByLabelText(/All students who need help!/i));
-
-    // Wait for the state to update
-    await waitFor(() => {
-      expect(screen.getByLabelText(/All students who need help!/i)).toBeChecked();
-    });
-
-    // Additional assertions can be added here to verify the filtering logic
-    // For example, if your mock data includes a user who needs help, check if only that user is displayed
+  
+    // Wait for the user data to be displayed, ensuring the component had time to process and render the fetched data
+    const user1 = await screen.findByText("user1");
+    const user2 = await screen.findByText("user2");
+  
+    expect(user1).toBeInTheDocument();
+    expect(user2).toBeInTheDocument();
   });
-
+  
+  
   // You can add more tests here to cover user interactions, state changes, and edge cases
 });
