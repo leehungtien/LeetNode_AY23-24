@@ -8,6 +8,7 @@ global.ResizeObserver = class ResizeObserver {
 import axios from "axios";
 import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+//import userEvent from '@testing-library/user-event'
 import Performance from "./Performance";
 
 // Mock axios
@@ -73,6 +74,7 @@ describe("Performance component", () => {
     // Example: Waiting for a static text to appear as a sign of successful render
     await waitFor(() => {
       expect(screen.getByText(/All students who need help!/)).toBeInTheDocument();
+
     });
   });
 
@@ -91,4 +93,5 @@ describe("Performance component", () => {
     expect(user1).toBeInTheDocument();
     expect(user2).toBeInTheDocument();
   });
+  
 });
