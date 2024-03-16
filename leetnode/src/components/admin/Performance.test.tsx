@@ -27,12 +27,31 @@ jest.mock('@mantine/core', () => ({
   Select: () => null, // Mock specific components causing issues. Adjust based on your usage.
 }));
 
-// Mock data for users
-const mockUsersData = {
+// Define User and MockUsersData types
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  lastActive: string;
+  masteries: any[]; // Adjust the type according to your data
+  attempts: any[]; // Adjust the type according to your data
+  image: string;
+}
+
+interface MockUsersData {
+  filter(arg0: (user: any) => boolean): any;
+  data: User[];
+}
+
+// Use the types for your mock data
+const mockUsersData: MockUsersData = {
   data: [
     { id: "1", username: "user1", email: "user1@example.com", lastActive: new Date().toISOString(), masteries: [], attempts: [], image: "" },
     { id: "2", username: "user2", email: "user2@example.com", lastActive: new Date().toISOString(), masteries: [], attempts: [], image: "" },
   ],
+  filter: function (arg0: (user: any) => boolean) {
+    throw new Error("Function not implemented.");
+  }
 };
 
 // Mock data for topics
@@ -46,13 +65,14 @@ const mockTopicsData = {
 // Mock axios responses
 mockedAxios.get.mockImplementation((url) => {
   if (url.includes("/api/user/admin")) {
-    return Promise.resolve(mockUsersData);
+    return Promise.resolve(mockUsersData); // Correctly return the entire object
+  } else if (url.includes("/api/topic")) {
+    return Promise.resolve(mockTopicsData); // Correctly return the entire object
+  } else {
+    return Promise.reject(new Error("URL not found"));
   }
-  if (url.includes("/api/topic")) {
-    return Promise.resolve(mockTopicsData);
-  }
-  return Promise.reject(new Error("not found"));
 });
+
 
 // Initialize a new instance of QueryClient from React Query.
 const queryClient = new QueryClient();
@@ -93,5 +113,29 @@ describe("Performance component", () => {
     expect(user1).toBeInTheDocument();
     expect(user2).toBeInTheDocument();
   });
+
+  // it('filters users who need help when checkbox is checked', async () => {
+  //   // Mock data including some users needing help
+  //   mockedAxios.get.mockImplementation(url =>
+  //     url.includes("/api/user/admin") ? Promise.resolve({ data: mockUsersData.filter(user => user.needsHelp === true) }) :
+  //     url.includes("/api/topic") ? Promise.resolve({ data: mockTopicsData }) :
+  //     Promise.reject(new Error("URL not found"))
+  //   );
   
+  //   render(
+  //     <QueryClientProvider client={queryClient}>
+  //       <Performance />
+  //     </QueryClientProvider>
+  //   );
+  
+  //   // Check the checkbox for users who need help
+  //   screen.debug();
+  //   const helpCheckbox = await screen.findByTestId("help-checkbox");
+  //   userEvent.click(helpCheckbox);
+      
+  //   // Assert that only the users who need help are shown
+  //   expect(screen.queryByText("user1")).toBeInTheDocument();
+  //   // Assuming "user1" needs help and "user2" does not
+  //   expect(screen.queryByText("user2")).not.toBeInTheDocument();
+  // });
 });
