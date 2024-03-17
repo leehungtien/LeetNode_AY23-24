@@ -1,7 +1,7 @@
 // streak.test.tsx
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
+//import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
@@ -97,6 +97,4 @@ describe('Streak Component', () => {
     // The component should now render with data, making the "Daily Streak" text available immediately
     expect(screen.getByText(/Daily Streak/i)).toBeInTheDocument();
   });
-
-  // Add more tests as needed to cover other functionalities and interactions
 });
