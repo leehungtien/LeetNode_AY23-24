@@ -1,66 +1,115 @@
-import React from 'react';
-import { fireEvent, render, waitFor, screen } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { SessionProvider } from 'next-auth/react';
+// Mock ResizeObserver globally
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}; 
 
-import Navbar from './Navbar';
+import React, { useState } from 'react';
+import { render, fireEvent, waitFor, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import Navbar from './Navbar'; // Adjust the import path based on your project structure
+import { SessionProvider } from "next-auth/react";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ColorSchemeProvider, MantineProvider } from '@mantine/core';
+import axios from 'axios';
+import { Session } from "next-auth";
 
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+
+// Mock useRouter
 jest.mock('next/router', () => ({
-  useRouter: () => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    query: { callbackUrl: '/mock-callback-url' },
-  }),
-}));
-
-jest.mock('@mantine/core', () => ({
-  ...jest.requireActual('@mantine/core'),
-  useMantineColorScheme: jest.fn(() => ({ colorScheme: 'light', toggleColorScheme: jest.fn() })),
-}));
-
-jest.mock('@tanstack/react-query', () => ({
-  useQuery: jest.fn((queryKey, queryFn, options) => {
-    if (queryKey[0] === 'userInfo' && queryKey[1] === 1) {
-      return {
-        data: {
-          id: 1,
-          username: 'mockuser',
-          email: 'mockuser@example.com',
-          role: 'user',
-        },
-        isLoading: false,
-        isError: false,
-      };
-    }
+  useRouter() {
     return {
-      data: null,
-      isLoading: false,
-      isError: false,
+      pathname: '/',
+      query: {},
+      replace: jest.fn(),
     };
-  }),
+  },
 }));
 
-describe('Navbar component', () => {
-  test('render Navbar component', async () => {
-    const queryClient = new QueryClient();
-    const setSidebarOpenedMock = jest.fn();
+// Mock next/image
+jest.mock('next/image', () => ({
+  __esModule: true,
+  default: () => {
+    return 'Next image stub'; // or whatever you want to return from this component
+  },
+}));
 
-    render(
+const queryClient = new QueryClient();
+
+// Assuming 'ColorScheme' type is exported from Mantine,
+// but if not, we'll define it as a type with two possible string literal values.
+type ColorScheme = 'light' | 'dark';
+
+interface MockedNavbarProps {
+  session: Session | null;
+}
+
+const MockedNavbar: React.FC<MockedNavbarProps> = ({ session }) => {
+  // Explicitly declare the type of 'colorScheme' state as 'ColorScheme'
+  const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
+
+  const toggleColorScheme = (value?: ColorScheme) =>
+    setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
+
+  return (
+    <SessionProvider session={session}>
       <QueryClientProvider client={queryClient}>
-        <SessionProvider
-          session={{
-            user: {
-              id: '1',
-              username: 'mockuser',
-              email: 'mockuser@example.com',
-              role: 'USER',
-            },
-            expires: '1234567890',
-          }}
-        >
-          <Navbar setSidebarOpened={setSidebarOpenedMock} />
-        </SessionProvider>
+        <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
+          <MantineProvider theme={{ colorScheme }} withGlobalStyles withNormalizeCSS>
+            <Navbar />
+          </MantineProvider>
+        </ColorSchemeProvider>
       </QueryClientProvider>
-    );
+    </SessionProvider>
+  );
+};
+
+
+describe('Navbar Component', () => {
+  it('renders correctly when user is not authenticated', () => {
+    render(<MockedNavbar session={null} />);
+    expect(screen.getByText('Log In')).toBeInTheDocument();
   });
+
+  it('renders user info when authenticated', async () => {
+    const userInfo = {
+      username: 'johndoe', // Ensuring this matches the expected structure
+      image: 'https://example.com/johndoe.jpg',
+      loginStreak: 5,
+    };
+  
+    mockedAxios.post.mockResolvedValue({ data: userInfo });
+  
+    render(
+      <MockedNavbar
+        session={{
+          expires: '1',
+          user: {
+            id: '1',
+            username: 'John Doe', // Updated to 'username' to match the expected type
+            email: 'john@example.com',
+            role: 'USER', // Ensure this matches the expected role type as well
+          },
+        }}
+      />
+    );
+  
+    await waitFor(() => expect(screen.getByText('johndoe')).toBeInTheDocument());
+    expect(screen.getByText('johndoe')).toBeInTheDocument();
+    expect(mockedAxios.post).toHaveBeenCalled();
+  });
+  
+
+  it('handles color scheme change', async () => {
+    render(<MockedNavbar session={null} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Log In' }));
+    expect(screen.getByText('Log In')).toBeInTheDocument();
+  });
+
+  // Add more tests as needed to cover interactions and different states
 });
+
