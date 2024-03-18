@@ -1,5 +1,6 @@
 import { DetailedHTMLProps, HTMLAttributes, PropsWithChildren } from "react";
-import { ReactMarkdown } from "react-markdown/lib/react-markdown";
+//import ReactMarkdown from "react-markdown/lib/react-markdown";
+import ReactMarkdown from 'react-markdown';
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
 import remarkMath from "remark-math";
