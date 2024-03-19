@@ -65,7 +65,6 @@ export default function Highlighter() {
       }
     };
     
-
     if (isActive || isEraserActive) {
       document.addEventListener('mouseup', handleMouseUp);
     } else {
