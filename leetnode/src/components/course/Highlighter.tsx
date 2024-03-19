@@ -28,38 +28,43 @@ export default function Highlighter() {
         if (!selection || selection.isCollapsed) return;
         const range = selection.getRangeAt(0);
     
-        // Check if the range contains only text nodes or non-image elements
-        const isRangeValid = Array.from(range.cloneContents().childNodes).every(node => {
-          return node.nodeType === Node.TEXT_NODE || (node.nodeType === Node.ELEMENT_NODE && (node as HTMLElement).tagName !== 'IMG');
-        });
+        // Check if the selection is valid and contains only text
+        const isRangeValid = Array.from(range.cloneContents().childNodes).every(
+          (node) =>
+            node.nodeType === Node.TEXT_NODE ||
+            (node.nodeType === Node.ELEMENT_NODE && node.nodeName === 'BR')
+        );
     
         if (isRangeValid) {
-          const fragment = range.cloneContents();
+          // Create start and end markers
+          const startMarker = document.createTextNode('');
+          const endMarker = document.createTextNode('');
+          range.insertNode(startMarker);
+          range.collapse(false); // Collapse the range to the end point
+          range.insertNode(endMarker);
+          range.setStartAfter(startMarker);
+          range.setEndBefore(endMarker);
+    
+          // Create the span element to wrap the selected text
           const span = document.createElement('span');
           span.style.backgroundColor = highlightColor;
+          span.style.display = 'inline'; // Ensure the span is displayed inline
+          range.surroundContents(span);
     
-          // Iterate through the child nodes in the fragment
-          Array.from(fragment.childNodes).forEach(child => {
-            if (child.nodeType === Node.TEXT_NODE) {
-              // Append text nodes directly
-              span.appendChild(child.cloneNode(true));
-            } else if ((child as HTMLElement).tagName !== 'IMG') {
-              // Append non-text, non-image elements directly
-              span.appendChild(child.cloneNode(true));
-            }
-          });
+          // Clean up markers
+          startMarker.remove();
+          endMarker.remove();
     
-          // Clear the range before modifying it
-          range.deleteContents();
-    
-          // Insert the modified span
-          range.insertNode(span);
+          // Clear the selection
           selection.removeAllRanges();
         } else {
-          console.warn('Invalid selection: Range contains non-text nodes or images');
+          // Warn the user and clear the selection
+          alert('Please highlight only the text in question.');
+          selection.removeAllRanges(); // Clear the selection
         }
       }
     };
+    
 
     if (isActive || isEraserActive) {
       document.addEventListener('mouseup', handleMouseUp);
