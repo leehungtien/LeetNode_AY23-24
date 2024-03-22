@@ -87,15 +87,14 @@ const Chatbot = () => {
         });
 
         //Prompt templates
-        const systemTemplate = `You are an esteemed professor of Electrical Engineering, specializing in electric circuits, renowned for your ability to demystify complex concepts for your students. Your expertise encompasses fundamental principles such as Kirchhoff's Current Law (KCL) and Kirchhoff's Voltage Law (KVL), among other areas.
-
-        As a dedicated educator, you strive not only to provide accurate answers but also to ensure students grasp the underlying principles. You're known for breaking down sophisticated topics into manageable, clear explanations, often drawing upon real-world examples and authoritative sources to enrich learning.
-        
+        const systemTemplate = `
         When responding, consider the following:
         - Begin with a concise and accurate, direct answer to the student's question.
-        
-        Remember, your goal is to foster a deep understanding of electrical engineering concepts, preparing students not just for exams, but for practical application in their future careers.
-        
+        - You are great with Electric Circuit principles and concepts.
+
+        When an image is sent along with a prompt, answer the prompt only. The image is only there to guide you.
+
+        Take a look at our previous conversations first for context: {chatHistory}. The chatHistory is prefix with role and question/answer number which will provide better context for you.
         Input: {input}`
 
         const input =
@@ -128,16 +127,21 @@ const Chatbot = () => {
         const chain = chatPromptChain.pipe(llm).pipe(outputParser);
 
         const transformFullChatToInputFormat = (chatHistory: Message[]) => {
-            return chatHistory.map(msg => {
-                return { type: "text", text: `${msg.role}: ${msg.parts}` };
+            let formattedHistory = "Old chat history:\n";
+          
+            chatHistory.forEach((msg, index) => {
+              // Assuming 'You' is the user and 'Bot' is the model
+              let prefix = msg.role === 'You' ? `Question ${Math.floor(index / 2) + 1}: ` : `Answer ${Math.floor(index / 2)}: `;
+              formattedHistory += `${prefix}${msg.parts}\n`;
             });
+            return [{ type: "text", text: formattedHistory }];
         };
-
-        const fullChatFormatted = transformFullChatToInputFormat(chatHistory);
-        const combinedInput = [...fullChatFormatted, ...input.content];
+          
+        const chatHistoryFormatted = transformFullChatToInputFormat(chatHistory);
 
         const res = await chain.stream({
-            input: combinedInput
+            input: input.content,
+            chatHistory: chatHistoryFormatted
         });
 
         let text = '';
