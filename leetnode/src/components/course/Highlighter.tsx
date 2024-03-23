@@ -30,13 +30,14 @@ export default function Highlighter() {
         const range = selection.getRangeAt(0);
   
         const selectionContents = range.cloneContents();
+        // Directly check for text nodes within the selection, including a null check for textContent
+        const textNodes = Array.from(selectionContents.childNodes).filter(node => node.nodeType === Node.TEXT_NODE && node.textContent && node.textContent.trim().length > 0);
         const nodes = Array.from(selectionContents.querySelectorAll('*')); // Select all elements within the selection
   
-        // Checks if there are any image elements
+        // Update the checks to include direct text node checks and null check for textContent
         const containsImage = nodes.some(node => node.nodeName === 'IMG');
-        // Checks for non-image elements or text nodes
-        const containsNonImageElementOrText = nodes.some(node =>
-          node.nodeType === Node.TEXT_NODE ||
+        const containsNonImageElementOrText = textNodes.length > 0 || nodes.some(node =>
+          (node.nodeType === Node.TEXT_NODE && node.textContent && node.textContent.trim().length > 0) ||
           (node.nodeType === Node.ELEMENT_NODE && node.nodeName !== 'IMG')
         );
         
