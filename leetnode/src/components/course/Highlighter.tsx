@@ -44,56 +44,27 @@ export default function Highlighter() {
         
       console.log('containsImage:', containsImage, 'containsNonImageElementOrText:', containsNonImageElementOrText);
       
-      if (containsImage && containsNonImageElementOrText) {
-          // Case when both an image and text/formula are selected
-          alert('Please do not highlight text and images together. Highlight text only.');
-          selection.removeAllRanges(); // Clear the selection
-        } else if (containsImage) {
-          // Case when only an image is selected
-          alert('Please do not highlight images.');
-          selection.removeAllRanges(); // Clear the selection
-          //case when text/formaula are selected
-        } else {
-          // Assume any selection is potentially valid for highlighting for simplicity,
-          // but you might want to refine this to exclude certain elements explicitly.
-          const isTextSelection = nodes.every(node => 
-            node.nodeType === Node.TEXT_NODE || 
-            node.nodeType === Node.ELEMENT_NODE // Optionally, add more specific checks here
-          );
-        
-          if (isTextSelection) {
-            const highlightSpan = document.createElement('span');
-            highlightSpan.style.backgroundColor = highlightColor;
-            highlightSpan.style.display = 'inline';
-        
-            // Fragment to gather nodes for wrapping
-            const docFragment = document.createDocumentFragment();
-            docFragment.appendChild(highlightSpan);
-        
-            try {
-              nodes.forEach(node => {
-                // Clone and append to the highlight span if it's an element node that might not directly be text
-                if (node.nodeType === Node.ELEMENT_NODE) {
-                  const clonedNode = node.cloneNode(true); // Deep clone to get all child nodes
-                  highlightSpan.appendChild(clonedNode);
-                } else if (node.nodeType === Node.TEXT_NODE) {
-                  highlightSpan.appendChild(node.cloneNode(true));
-                }
-              });
-        
-              // Replace the original range contents with the new fragment
-              range.deleteContents();
-              range.insertNode(docFragment);
-        
-              // Clear the selection to prevent accidental manipulation
-              window.getSelection()?.removeAllRanges();
-            } catch (error) {
-              console.error('Error applying highlight:', error);
-            }
-          }
+      if (!containsImage && containsNonImageElementOrText) {
+        const highlightSpan = document.createElement('span');
+        highlightSpan.style.backgroundColor = highlightColor;
+        highlightSpan.style.display = 'inline';
+
+        try {
+          // Instead of cloning and appending child nodes to the highlightSpan,
+          // directly surround the range with the highlightSpan.
+          range.surroundContents(highlightSpan);
+
+          // Clear the selection to prevent accidental manipulation
+          window.getSelection()?.removeAllRanges();
+        } catch (error) {
+          console.error('Error applying highlight:', error);
+          // Fallback for cases where surroundContents might fail due to complex selections
+          // This can be due to selections spanning multiple nodes which cannot be surrounded as a single range.
+          // Implement additional handling here if needed.
         }
       }
-    };
+    }
+  };
     
     if (isActive || isEraserActive) {
       document.addEventListener('mouseup', handleMouseUp);
