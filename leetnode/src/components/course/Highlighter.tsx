@@ -30,41 +30,39 @@ export default function Highlighter() {
         const range = selection.getRangeAt(0);
   
         const selectionContents = range.cloneContents();
-        // Directly check for text nodes within the selection, including a null check for textContent
-        const textNodes = Array.from(selectionContents.childNodes).filter(node => node.nodeType === Node.TEXT_NODE && node.textContent && node.textContent.trim().length > 0);
-        const nodes = Array.from(selectionContents.querySelectorAll('*')); // Select all elements within the selection
+        const textNodes = Array.from(selectionContents.childNodes).filter(node => 
+          node.nodeType === Node.TEXT_NODE && node.textContent && node.textContent.trim().length > 0
+        );
+        const nodes = Array.from(selectionContents.querySelectorAll('*'));
   
-        // Update the checks to include direct text node checks and null check for textContent
         const containsImage = nodes.some(node => node.nodeName === 'IMG');
         const containsNonImageElementOrText = textNodes.length > 0 || nodes.some(node =>
           (node.nodeType === Node.TEXT_NODE && node.textContent && node.textContent.trim().length > 0) ||
           (node.nodeType === Node.ELEMENT_NODE && node.nodeName !== 'IMG')
         );
+  
+        console.log('containsImage:', containsImage, 'containsNonImageElementOrText:', containsNonImageElementOrText);
         
-        
-      console.log('containsImage:', containsImage, 'containsNonImageElementOrText:', containsNonImageElementOrText);
-      
-      if (!containsImage && containsNonImageElementOrText) {
-        const highlightSpan = document.createElement('span');
-        highlightSpan.style.backgroundColor = highlightColor;
-        highlightSpan.style.display = 'inline';
-
-        try {
-          // Instead of cloning and appending child nodes to the highlightSpan,
-          // directly surround the range with the highlightSpan.
-          range.surroundContents(highlightSpan);
-
-          // Clear the selection to prevent accidental manipulation
-          window.getSelection()?.removeAllRanges();
-        } catch (error) {
-          console.error('Error applying highlight:', error);
-          // Fallback for cases where surroundContents might fail due to complex selections
-          // This can be due to selections spanning multiple nodes which cannot be surrounded as a single range.
-          // Implement additional handling here if needed.
+        if (containsImage && containsNonImageElementOrText) {
+          alert('Please highlight text only.');
+          window.getSelection()?.removeAllRanges(); // Clear the selection to prevent accidental highlighting
+        } else if (containsImage && !containsNonImageElementOrText) {
+          alert('Please do not highlight images.');
+          window.getSelection()?.removeAllRanges(); // Clear the selection to prevent accidental highlighting
+        } else if (!containsImage && containsNonImageElementOrText) {
+          const highlightSpan = document.createElement('span');
+          highlightSpan.style.backgroundColor = highlightColor;
+          highlightSpan.style.display = 'inline';
+  
+          try {
+            range.surroundContents(highlightSpan);
+            window.getSelection()?.removeAllRanges();
+          } catch (error) {
+            console.error('Error applying highlight:', error);
+          }
         }
       }
-    }
-  };
+    };
     
     if (isActive || isEraserActive) {
       document.addEventListener('mouseup', handleMouseUp);
