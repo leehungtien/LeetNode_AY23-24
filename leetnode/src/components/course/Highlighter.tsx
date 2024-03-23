@@ -4,6 +4,7 @@ export default function Highlighter() {
   const [highlightColor, setHighlightColor] = useState('#FFFF00');
   const [selectedColor, setSelectedColor] = useState('#FFFF00');
   const [isEraserActive, setIsEraserActive] = useState(false);
+  
   useEffect(() => {
     const handleMouseUp = () => {
       if (isEraserActive) {
@@ -28,39 +29,61 @@ export default function Highlighter() {
         if (!selection || selection.isCollapsed) return;
         const range = selection.getRangeAt(0);
     
-        // Check if the selection is valid and contains only text
-        const isRangeValid = Array.from(range.cloneContents().childNodes).every(
-          (node) =>
-            node.nodeType === Node.TEXT_NODE ||
-            (node.nodeType === Node.ELEMENT_NODE && node.nodeName === 'BR')
+        const selectionContents = range.cloneContents();
+        const nodes = Array.from(selectionContents.childNodes);
+    
+        const containsImage = nodes.some(node => node.nodeType === Node.ELEMENT_NODE && node.nodeName === 'IMG');
+        const containsNonImageElementOrText = nodes.some(node =>
+          node.nodeType === Node.TEXT_NODE ||
+          (node.nodeType === Node.ELEMENT_NODE && node.nodeName !== 'IMG')
         );
     
-        if (isRangeValid) {
-          // Create start and end markers
-          const startMarker = document.createTextNode('');
-          const endMarker = document.createTextNode('');
-          range.insertNode(startMarker);
-          range.collapse(false); // Collapse the range to the end point
-          range.insertNode(endMarker);
-          range.setStartAfter(startMarker);
-          range.setEndBefore(endMarker);
-    
-          // Create the span element to wrap the selected text
-          const span = document.createElement('span');
-          span.style.backgroundColor = highlightColor;
-          span.style.display = 'inline'; // Ensure the span is displayed inline
-          range.surroundContents(span);
-    
-          // Clean up markers
-          startMarker.remove();
-          endMarker.remove();
-    
-          // Clear the selection
-          selection.removeAllRanges();
-        } else {
-          // Warn the user and clear the selection
-          alert('Please highlight only the text in question.');
+        if (containsImage && containsNonImageElementOrText) {
+          // Case when both an image and text/formula are selected
+          alert('Please do not highlight text and images together. Highlight text only.');
           selection.removeAllRanges(); // Clear the selection
+        } else if (containsImage) {
+          // Case when only an image is selected
+          alert('Please do not highlight images.');
+          selection.removeAllRanges(); // Clear the selection
+        } else {
+          // Assume any selection is potentially valid for highlighting for simplicity,
+          // but you might want to refine this to exclude certain elements explicitly.
+          const isTextSelection = nodes.every(node => 
+            node.nodeType === Node.TEXT_NODE || 
+            node.nodeType === Node.ELEMENT_NODE // Optionally, add more specific checks here
+          );
+        
+          if (isTextSelection) {
+            const highlightSpan = document.createElement('span');
+            highlightSpan.style.backgroundColor = highlightColor;
+            highlightSpan.style.display = 'inline';
+        
+            // Fragment to gather nodes for wrapping
+            const docFragment = document.createDocumentFragment();
+            docFragment.appendChild(highlightSpan);
+        
+            try {
+              nodes.forEach(node => {
+                // Clone and append to the highlight span if it's an element node that might not directly be text
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                  const clonedNode = node.cloneNode(true); // Deep clone to get all child nodes
+                  highlightSpan.appendChild(clonedNode);
+                } else if (node.nodeType === Node.TEXT_NODE) {
+                  highlightSpan.appendChild(node.cloneNode(true));
+                }
+              });
+        
+              // Replace the original range contents with the new fragment
+              range.deleteContents();
+              range.insertNode(docFragment);
+        
+              // Clear the selection to prevent accidental manipulation
+              window.getSelection()?.removeAllRanges();
+            } catch (error) {
+              console.error('Error applying highlight:', error);
+            }
+          }
         }
       }
     };
@@ -74,13 +97,16 @@ export default function Highlighter() {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isActive, highlightColor, isEraserActive]);
+
   const toggleHighlighter = () => {
     setIsActive(prev => !prev);
     setIsEraserActive(false); // Deactivate eraser mode when highlighter mode is toggled
   };
+
   const toggleEraser = () => {
     setIsEraserActive(prev => !prev);
   };
+
   const undoHighlight = () => {
     const highlightedElements = document.querySelectorAll('span[style*="background-color"]');
     highlightedElements.forEach(element => {
@@ -93,12 +119,15 @@ export default function Highlighter() {
       }
     });
   };
+
   const handleColorChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
     setSelectedColor(event.target.value);
   };
+
   const confirmColorSelection = () => {
     setHighlightColor(selectedColor);
   };
+
   return (
     <div>
       <button onClick={toggleHighlighter}>
