@@ -28,17 +28,22 @@ export default function Highlighter() {
         const selection = window.getSelection();
         if (!selection || selection.isCollapsed) return;
         const range = selection.getRangeAt(0);
-    
+  
         const selectionContents = range.cloneContents();
-        const nodes = Array.from(selectionContents.childNodes);
-    
-        const containsImage = nodes.some(node => node.nodeType === Node.ELEMENT_NODE && node.nodeName === 'IMG');
+        const nodes = Array.from(selectionContents.querySelectorAll('*')); // Select all elements within the selection
+  
+        // Checks if there are any image elements
+        const containsImage = nodes.some(node => node.nodeName === 'IMG');
+        // Checks for non-image elements or text nodes
         const containsNonImageElementOrText = nodes.some(node =>
           node.nodeType === Node.TEXT_NODE ||
           (node.nodeType === Node.ELEMENT_NODE && node.nodeName !== 'IMG')
         );
-    
-        if (containsImage && containsNonImageElementOrText) {
+        
+        
+      console.log('containsImage:', containsImage, 'containsNonImageElementOrText:', containsNonImageElementOrText);
+      
+      if (containsImage && containsNonImageElementOrText) {
           // Case when both an image and text/formula are selected
           alert('Please do not highlight text and images together. Highlight text only.');
           selection.removeAllRanges(); // Clear the selection
@@ -46,6 +51,7 @@ export default function Highlighter() {
           // Case when only an image is selected
           alert('Please do not highlight images.');
           selection.removeAllRanges(); // Clear the selection
+          //case when text/formaula are selected
         } else {
           // Assume any selection is potentially valid for highlighting for simplicity,
           // but you might want to refine this to exclude certain elements explicitly.
