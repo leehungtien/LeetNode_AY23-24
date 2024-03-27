@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+
 export default function Highlighter() {
+
   const [isActive, setIsActive] = useState(false);
   const [highlightColor, setHighlightColor] = useState('#FFFF00');
   const [selectedColor, setSelectedColor] = useState('#FFFF00');
@@ -112,7 +114,7 @@ export default function Highlighter() {
       {isActive && (
         <>
           <div style={{ display: 'inline-block' }}> {/* Add inline-block display */}
-            <button onClick={undoHighlight}>Undo All Highlighting</button>
+            <button onClick={undoHighlight}>Erase All Highlighting</button>
             <button onClick={toggleEraser}>
               {isEraserActive ? 'Deactivate Eraser' : 'Activate Eraser'}
             </button>
@@ -130,7 +132,7 @@ export default function Highlighter() {
         </>
       )}
       <p>
-        Instructions: Once the highlighter is activated, choose a colour of your choice and click on confirm to select the colour. Undo highlighting will remove all highlighting.
+        Instructions: Once the highlighter is activated, choose a colour of your choice and click on confirm to select the colour. Erase highlighting will remove all highlighting.
       </p>
     </div>
   );
