@@ -50,7 +50,7 @@ const Chatbot = () => {
         outputKey: "text",
         returnMessages: true,
     }));
-      
+
     //LLM (Langchain + Gemini AI)
     const chatlog = async (e: any) => {
         e.preventDefault();
@@ -147,16 +147,16 @@ const Chatbot = () => {
 
             const transformFullChatToInputFormat = (chatHistory: Message[]) => {
                 let formattedHistory = "Old chat history:\n";
-            
+
                 chatHistory.forEach((msg, index) => {
-                    
-                // Assuming 'You' is the user and 'Bot' is the model
-                let prefix = msg.role === 'You' ? `Question ${Math.floor(index / 2) + 1}: ` : `Answer ${Math.floor(index / 2)}: `;
-                formattedHistory += `${prefix}${msg.parts}\n`;
+
+                    // Assuming 'You' is the user and 'Bot' is the model
+                    let prefix = msg.role === 'You' ? `Question ${Math.floor(index / 2) + 1}: ` : `Answer ${Math.floor(index / 2)}: `;
+                    formattedHistory += `${prefix}${msg.parts}\n`;
                 });
                 return [{ type: "text", text: formattedHistory }];
             };
-            
+
             const chatHistoryFormatted = transformFullChatToInputFormat(chatHistory);
 
             const res = await chain.stream({
@@ -175,10 +175,10 @@ const Chatbot = () => {
 
         } else {
             const splitter = new RecursiveCharacterTextSplitter({
-              chunkSize: 1000,
-              chunkOverlap: 200
+                chunkSize: 1000,
+                chunkOverlap: 200
             });
-    
+
             const response = await fetch('/api/readFile');
             const { pdfText } = await response.json();
             const splitDocs = await splitter.createDocuments([pdfText]);
@@ -188,26 +188,26 @@ const Chatbot = () => {
                 title: "LeetNode",
                 apiKey: "AIzaSyCaV5djusWE31J5Atgd71eqpHhN6Uwmy2E"
             });
-    
+
             const vectorStore = await MemoryVectorStore.fromDocuments(
-              splitDocs,
-              embeddings
+                splitDocs,
+                embeddings
             );
             const retriever = vectorStore.asRetriever();
-    
+
             const serializeChatHistory = (chatHistory: Array<BaseMessage>): string =>
-            chatHistory
-              .map((chatMessage) => {
-                  if (chatMessage._getType() === "human") {
-                      return `Human: ${chatMessage.content}`;
-                  } else if (chatMessage._getType() === "ai") {
-                      return `Assistant: ${chatMessage.content}`;
-                  } else {
-                      return `${chatMessage.content}`;
-                  }
-              })
-              .join("\n");
-          
+                chatHistory
+                    .map((chatMessage) => {
+                        if (chatMessage._getType() === "human") {
+                            return `Human: ${chatMessage.content}`;
+                        } else if (chatMessage._getType() === "ai") {
+                            return `Assistant: ${chatMessage.content}`;
+                        } else {
+                            return `${chatMessage.content}`;
+                        }
+                    })
+                    .join("\n");
+
             /**
              * Create two prompt templates, one for answering questions, and one for
              * generating questions.
@@ -232,55 +232,55 @@ const Chatbot = () => {
                 ----------
                 Standalone question:`
             );
-        
+
             const questionChain = new LLMChain({
                 llm: llm,
                 prompt: questionGeneratorTemplate,
             });
-            
+
             const responseChain = new LLMChain({
                 llm: llm,
                 prompt: questionPrompt,
             });
-                
+
             const performQuestionAnswering = async (input: {
                 question: string;
                 chatHistory: Array<BaseMessage> | null;
                 context: Array<Document>;
             }): Promise<{ result: string; sourceDocuments: Array<Document> }> => {
                 let newQuestion = input.question;
-        
+
                 // Serialize context and chat history into strings
                 const serializedDocs = formatDocumentsAsString(input.context);
                 const chatHistoryString = input.chatHistory
                     ? serializeChatHistory(input.chatHistory)
                     : null;
-        
-                    if (chatHistoryString) {
-        
+
+                if (chatHistoryString) {
+
                     // Call the faster chain to generate a new question
                     const { text } = await questionChain.invoke({
-                    chatHistory: chatHistoryString,
-                    context: serializedDocs,
-                    question: input.question,
+                        chatHistory: chatHistoryString,
+                        context: serializedDocs,
+                        question: input.question,
                     });
-                
+
                     newQuestion = text;
                 }
-                
+
                 const response = await responseChain.invoke({
                     chatHistory: chatHistoryString ?? "",
                     context: serializedDocs,
                     question: newQuestion,
                 });
-        
+
                 // Save the chat history to memory
                 await memory.saveContext(
                     {
-                    question: input.question,
+                        question: input.question,
                     },
                     {
-                    text: response.text,
+                        text: response.text,
                     }
                 );
                 return {
@@ -288,24 +288,24 @@ const Chatbot = () => {
                     sourceDocuments: input.context,
                 };
             };
-                
+
             const chain = RunnableSequence.from([
                 {
-                // Pipe the question through unchanged
-                question: (input: { question: string }) => input.question,
-                // Fetch the chat history, and return the history or null if not present
-                chatHistory: async () => {
-                    const savedMemory = await memory.loadMemoryVariables({});
-                    const hasHistory = savedMemory.chatHistory.length > 0;
-                    return hasHistory ? savedMemory.chatHistory : null;
-                },
-                // Fetch relevant context based on the question
-                context: async (input: { question: string }) =>
-                    retriever.getRelevantDocuments(input.question),
+                    // Pipe the question through unchanged
+                    question: (input: { question: string }) => input.question,
+                    // Fetch the chat history, and return the history or null if not present
+                    chatHistory: async () => {
+                        const savedMemory = await memory.loadMemoryVariables({});
+                        const hasHistory = savedMemory.chatHistory.length > 0;
+                        return hasHistory ? savedMemory.chatHistory : null;
+                    },
+                    // Fetch relevant context based on the question
+                    context: async (input: { question: string }) =>
+                        retriever.getRelevantDocuments(input.question),
                 },
                 performQuestionAnswering,
             ]);
-                
+
             const res = await chain.invoke({
                 question: prompt,
             });
