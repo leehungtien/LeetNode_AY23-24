@@ -93,8 +93,10 @@ const Chatbot = () => {
                 threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
             }
         ];
+
+        const hasImage = fileInputEl.files?.length > 0;
         const llm = new ChatGoogleGenerativeAI({
-            modelName: fileInputEl.files?.length ? "gemini-pro-vision" : "gemini-pro",
+            modelName: hasImage ? "gemini-pro-vision" : "gemini-pro",
             maxOutputTokens: 500,
             safetySettings,
             cache: true,
@@ -102,211 +104,218 @@ const Chatbot = () => {
             apiKey: "AIzaSyCaV5djusWE31J5Atgd71eqpHhN6Uwmy2E"
         });
 
-        const splitter = new RecursiveCharacterTextSplitter({
-          chunkSize: 1000,
-          chunkOverlap: 200
-        });
-        const response = await fetch('/api/readFile');
-        const { pdfText } = await response.json();
-        const splitDocs = await splitter.createDocuments([pdfText]);
-        const embeddings = new GoogleGenerativeAIEmbeddings({
-            modelName: "embedding-001", // 768 dimensions
-            taskType: TaskType.RETRIEVAL_DOCUMENT,
-            title: "LeetNode",
-            apiKey: "AIzaSyCaV5djusWE31J5Atgd71eqpHhN6Uwmy2E"
-        });
+        if (hasImage) {
+            //Prompt templates
+            const systemTemplate = `
+            When responding, consider the following:
+            - Begin with a concise and accurate, direct answer to the student's question.
+            - You are great with Electric Circuit principles and concepts.
 
-        const vectorStore = await MemoryVectorStore.fromDocuments(
-          splitDocs,
-          embeddings
-        );
-        const retriever = vectorStore.asRetriever();
+            When an image is sent along with a prompt, answer the prompt only. The image is only there to guide you.
 
-        const serializeChatHistory = (chatHistory: Array<BaseMessage>): string =>
-        chatHistory
-          .map((chatMessage) => {
-              if (chatMessage._getType() === "human") {
-                  return `Human: ${chatMessage.content}`;
-              } else if (chatMessage._getType() === "ai") {
-                  return `Assistant: ${chatMessage.content}`;
-              } else {
-                  return `${chatMessage.content}`;
-              }
-          })
-          .join("\n");
-      
-      /**
-       * Create two prompt templates, one for answering questions, and one for
-       * generating questions.
-       */
-      const questionPrompt = PromptTemplate.fromTemplate(
-        `Ignore the given context and chatHistory answer to the best of your knowledge.
-        ----------
-        CONTEXT: {context}
-        ----------
-        CHAT HISTORY: {chatHistory}
-        ----------
-        QUESTION: {question}
-        ----------
-        Helpful Answer:`
-      );
-      const questionGeneratorTemplate = PromptTemplate.fromTemplate(
-        `Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
-        ----------
-        CHAT HISTORY: {chatHistory}
-        ----------
-        FOLLOWUP QUESTION: {question}
-        ----------
-        Standalone question:`
-      );
-  
-        // //Prompt templates
-        // const systemTemplate = `
-        // When responding, consider the following:
-        // - Begin with a concise and accurate, direct answer to the student's question.
-        // - You are great with Electric Circuit principles and concepts.
+            Take a look at our previous conversations first for context: {chatHistory}. The chatHistory is prefix with role and question/answer number which will provide better context for you.
+            Input: {input}`
 
-        // When an image is sent along with a prompt, answer the prompt only. The image is only there to guide you.
+            const input =
+                new HumanMessage({
+                    content: fileInputEl.files?.length
+                        ? [
+                            {
+                                type: "text",
+                                text: prompt,
+                            },
+                            {
+                                type: "image_url",
+                                image_url: `${typedImageParts}`,
+                            },
+                        ]
 
-        // Take a look at our previous conversations first for context: {chatHistory}. The chatHistory is prefix with role and question/answer number which will provide better context for you.
-        // Input: {input}`
+                        : [
+                            {
+                                type: "text",
+                                text: prompt,
+                            },
+                        ],
+                });
 
-        // const input =
-        //     new HumanMessage({
-        //         content: fileInputEl.files?.length
-        //             ? [
-        //                 {
-        //                     type: "text",
-        //                     text: prompt,
-        //                 },
-        //                 {
-        //                     type: "image_url",
-        //                     image_url: `${typedImageParts}`,
-        //                 },
-        //             ]
+            const chatPromptChain = ChatPromptTemplate.fromMessages([
+                ["system", systemTemplate],
+                input
+            ]);
 
-        //             : [
-        //                 {
-        //                     type: "text",
-        //                     text: prompt,
-        //                 },
-        //             ],
-        //     });
+            const chain = chatPromptChain.pipe(llm).pipe(outputParser);
 
-        // const chatPromptChain = ChatPromptTemplate.fromMessages([
-        //     ["system", systemTemplate],
-        //     input
-        // ]);
+            const transformFullChatToInputFormat = (chatHistory: Message[]) => {
+                let formattedHistory = "Old chat history:\n";
+            
+                chatHistory.forEach((msg, index) => {
+                    
+                // Assuming 'You' is the user and 'Bot' is the model
+                let prefix = msg.role === 'You' ? `Question ${Math.floor(index / 2) + 1}: ` : `Answer ${Math.floor(index / 2)}: `;
+                formattedHistory += `${prefix}${msg.parts}\n`;
+                });
+                return [{ type: "text", text: formattedHistory }];
+            };
+            
+            const chatHistoryFormatted = transformFullChatToInputFormat(chatHistory);
 
-        // const chain = chatPromptChain.pipe(llm).pipe(outputParser);
-
-        // const transformFullChatToInputFormat = (chatHistory: Message[]) => {
-        //     let formattedHistory = "Old chat history:\n";
-          
-        //     chatHistory.forEach((msg, index) => {
-        //       // Assuming 'You' is the user and 'Bot' is the model
-        //       let prefix = msg.role === 'You' ? `Question ${Math.floor(index / 2) + 1}: ` : `Answer ${Math.floor(index / 2)}: `;
-        //       formattedHistory += `${prefix}${msg.parts}\n`;
-        //     });
-        //     return [{ type: "text", text: formattedHistory }];
-        // };
-          
-        // const chatHistoryFormatted = transformFullChatToInputFormat(chatHistory);
-
-        // const res = await chain.stream({
-        //     input: input.content,
-        //     chatHistory: chatHistoryFormatted
-        // });
-
-      const textChain = new LLMChain({
-          llm: llm,
-          prompt: questionGeneratorTemplate,
-      });
-      
-      const imageChain = new LLMChain({
-          llm: llm,
-          prompt: questionPrompt,
-      });
-        
-      const performQuestionAnswering = async (input: {
-        question: string;
-        chatHistory: Array<BaseMessage> | null;
-        context: Array<Document>;
-      }): Promise<{ result: string; sourceDocuments: Array<Document> }> => {
-          let newQuestion = input.question;
-
-          // Serialize context and chat history into strings
-          const serializedDocs = formatDocumentsAsString(input.context);
-          const chatHistoryString = input.chatHistory
-            ? serializeChatHistory(input.chatHistory)
-            : null;
-
-            if (chatHistoryString) {
-
-            // Call the faster chain to generate a new question
-            const { text } = await textChain.invoke({
-              chatHistory: chatHistoryString,
-              context: serializedDocs,
-              question: input.question,
+            const res = await chain.stream({
+                input: input.content,
+                chatHistory: chatHistoryFormatted
             });
-        
-            newQuestion = text;
-          }
-        
-          const response = await imageChain.invoke({
-            chatHistory: chatHistoryString ?? "",
-            context: serializedDocs,
-            question: newQuestion,
-          });
 
-          // Save the chat history to memory
-          await memory.saveContext(
-            {
-              question: input.question,
-            },
-            {
-              text: response.text,
-            }
-          );
-          return {
-            result: response.text,
-            sourceDocuments: input.context,
-          };
-      };
-        
-      const chain = RunnableSequence.from([
-        {
-          // Pipe the question through unchanged
-          question: (input: { question: string }) => input.question,
-          // Fetch the chat history, and return the history or null if not present
-          chatHistory: async () => {
-            const savedMemory = await memory.loadMemoryVariables({});
-            const hasHistory = savedMemory.chatHistory.length > 0;
-            return hasHistory ? savedMemory.chatHistory : null;
-          },
-          // Fetch relevant context based on the question
-          context: async (input: { question: string }) =>
-            retriever.getRelevantDocuments(input.question),
-        },
-        performQuestionAnswering,
-      ]);
-        
-      const res = await chain.invoke({
-        question: prompt,
-      });
-  
-      const text = res.result;
-      setReply(text);
-      // let text = '';
-      // for await (const chunk of res) {
-      //     text += chunk;
-      //     setReply(text);
-      // };
+            let text = '';
+            for await (const chunk of res) {
+                text += chunk;
+                setReply(text);
+            };
+            updatedChat.push({ role: 'You', parts: prompt });
+            updatedChat.push({ role: 'Bot', parts: text });
+            setChatHistory(updatedChat);
 
-      updatedChat.push({ role: 'You', parts: prompt });
-      updatedChat.push({ role: 'Bot', parts: text });
-      setChatHistory(updatedChat);
-      setLoading(false);
+        } else {
+            const splitter = new RecursiveCharacterTextSplitter({
+              chunkSize: 1000,
+              chunkOverlap: 200
+            });
+    
+            const response = await fetch('/api/readFile');
+            const { pdfText } = await response.json();
+            const splitDocs = await splitter.createDocuments([pdfText]);
+            const embeddings = new GoogleGenerativeAIEmbeddings({
+                modelName: "embedding-001", // 768 dimensions
+                taskType: TaskType.RETRIEVAL_DOCUMENT,
+                title: "LeetNode",
+                apiKey: "AIzaSyCaV5djusWE31J5Atgd71eqpHhN6Uwmy2E"
+            });
+    
+            const vectorStore = await MemoryVectorStore.fromDocuments(
+              splitDocs,
+              embeddings
+            );
+            const retriever = vectorStore.asRetriever();
+    
+            const serializeChatHistory = (chatHistory: Array<BaseMessage>): string =>
+            chatHistory
+              .map((chatMessage) => {
+                  if (chatMessage._getType() === "human") {
+                      return `Human: ${chatMessage.content}`;
+                  } else if (chatMessage._getType() === "ai") {
+                      return `Assistant: ${chatMessage.content}`;
+                  } else {
+                      return `${chatMessage.content}`;
+                  }
+              })
+              .join("\n");
+          
+            /**
+             * Create two prompt templates, one for answering questions, and one for
+             * generating questions.
+             */
+            const questionPrompt = PromptTemplate.fromTemplate(
+                `Ignore the given context and chatHistory answer to the best of your knowledge.
+                ----------
+                CONTEXT: {context}
+                ----------
+                CHAT HISTORY: {chatHistory}
+                ----------
+                QUESTION: {question}
+                ----------
+                Helpful Answer:`
+            );
+            const questionGeneratorTemplate = PromptTemplate.fromTemplate(
+                `Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
+                ----------
+                CHAT HISTORY: {chatHistory}
+                ----------
+                FOLLOWUP QUESTION: {question}
+                ----------
+                Standalone question:`
+            );
+        
+            const questionChain = new LLMChain({
+                llm: llm,
+                prompt: questionGeneratorTemplate,
+            });
+            
+            const responseChain = new LLMChain({
+                llm: llm,
+                prompt: questionPrompt,
+            });
+                
+            const performQuestionAnswering = async (input: {
+                question: string;
+                chatHistory: Array<BaseMessage> | null;
+                context: Array<Document>;
+            }): Promise<{ result: string; sourceDocuments: Array<Document> }> => {
+                let newQuestion = input.question;
+        
+                // Serialize context and chat history into strings
+                const serializedDocs = formatDocumentsAsString(input.context);
+                const chatHistoryString = input.chatHistory
+                    ? serializeChatHistory(input.chatHistory)
+                    : null;
+        
+                    if (chatHistoryString) {
+        
+                    // Call the faster chain to generate a new question
+                    const { text } = await questionChain.invoke({
+                    chatHistory: chatHistoryString,
+                    context: serializedDocs,
+                    question: input.question,
+                    });
+                
+                    newQuestion = text;
+                }
+                
+                const response = await responseChain.invoke({
+                    chatHistory: chatHistoryString ?? "",
+                    context: serializedDocs,
+                    question: newQuestion,
+                });
+        
+                // Save the chat history to memory
+                await memory.saveContext(
+                    {
+                    question: input.question,
+                    },
+                    {
+                    text: response.text,
+                    }
+                );
+                return {
+                    result: response.text,
+                    sourceDocuments: input.context,
+                };
+            };
+                
+            const chain = RunnableSequence.from([
+                {
+                // Pipe the question through unchanged
+                question: (input: { question: string }) => input.question,
+                // Fetch the chat history, and return the history or null if not present
+                chatHistory: async () => {
+                    const savedMemory = await memory.loadMemoryVariables({});
+                    const hasHistory = savedMemory.chatHistory.length > 0;
+                    return hasHistory ? savedMemory.chatHistory : null;
+                },
+                // Fetch relevant context based on the question
+                context: async (input: { question: string }) =>
+                    retriever.getRelevantDocuments(input.question),
+                },
+                performQuestionAnswering,
+            ]);
+                
+            const res = await chain.invoke({
+                question: prompt,
+            });
+            const text = res.result;
+            setReply(text);
+            updatedChat.push({ role: 'You', parts: prompt });
+            updatedChat.push({ role: 'Bot', parts: text });
+            setChatHistory(updatedChat);
+        }
+        setLoading(false);
     }
 
     return (
