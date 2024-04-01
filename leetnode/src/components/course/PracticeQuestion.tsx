@@ -1,3 +1,4 @@
+
 import axios from "axios";
 import DOMPurify from "dompurify";
 import { useSession } from "next-auth/react";
@@ -16,6 +17,7 @@ import {
   Button,
   Center,
   Checkbox,
+  Drawer,
   Flex,
   Loader,
   Modal,
@@ -30,7 +32,10 @@ import { Question, QuestionWithAddedTime, User } from "@prisma/client";
 import { IconBulb } from "@tabler/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import DrawingTool from "../drawing/Canvas";
+import CanvasTool from "../drawing/CanvaTool";
+import Highlighter from "./Highlighter";
+
+/*TESTING ONLY*/
 
 interface UserData extends User {
   attempts: { [timestamp: string]: number };
@@ -44,6 +49,16 @@ export type UCQATAnswersType = {
 }[];
 
 export default function PracticeQuestion() {
+
+  // State to control the visibility of CanvasBrand
+  const [isCanvasBrandActive, setIsCanvasBrandActive] = useState(true);
+
+  // Toggle function for CanvasBrand visibility
+  const toggleCanvasBrand = () => {
+    setIsCanvasBrandActive(!isCanvasBrandActive);
+  };
+
+
   const session = useSession();
   const theme = useMantineTheme();
 
@@ -199,8 +214,16 @@ export default function PracticeQuestion() {
     .filter((item) => item.isCorrect)
     .map((item) => item.key);
 
+
+
+
+
+
   return (
     <Paper p="xl" radius="md" withBorder>
+
+      <Highlighter/>
+      
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -224,10 +247,6 @@ export default function PracticeQuestion() {
           });
         }}
       >
-
-        {/* DRAWING CANVAS TOOL ! */}
-      <DrawingTool/>
-      
         
 
         {/* QUESTION BADGE: EASY/MEDIUM/HARD DIFFICULTY + QUESTION + DIAGRAM*/}
@@ -236,30 +255,54 @@ export default function PracticeQuestion() {
           questionDifficulty={UCQAT.data.question.questionDifficulty}
           {...{ radius: "lg", size: "md" }}
         />
-        <div
-          className="rawhtml mt-4"
-          dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(UCQAT.data.question.questionContent, {
-              ADD_TAGS: ["iframe"],
-              ADD_ATTR: [
-                "allow",
-                "allowfullscreen",
-                "frameborder",
-                "scrolling",
-              ],
-            }),
-          }}
-        />
+        
+
+        
+        <div className="rawhtml mt-4 relative" style={{ position: 'relative' }}>
+
+            <Button onClick={toggleCanvasBrand}>
+              {isCanvasBrandActive ? 'Canvas Tool: ACTIVE' : 'Canvas Tool: INACTIVE'}
+            </Button>
+
+            {/* Conditionally render the CanvasBrand based on isCanvasBrandActive state */}
+            <CanvasTool isVisible={isCanvasBrandActive} />
+            
+            
+
+
+
+            {/* Render the sanitized HTML content */}
+            <div dangerouslySetInnerHTML={{ 
+              __html: DOMPurify.sanitize(UCQAT.data.question.questionContent, {
+                ADD_TAGS: ["iframe"],
+                ADD_ATTR: [
+                  "allow",
+                  "allowfullscreen",
+                  "frameborder",
+                  "scrolling",
+                ],
+              }),
+            }} 
+            />
+
+            
+                  
+        </div>
 
         
 
+        
+        
+        
+          
 
-        {/* VARIABLES BOX */}
+        {/* VARIABLES BOX (WITH VALUES OF COMPONENTS LIKE R1 R2 R3 etc....) */}
 
         <VariablesBox
           variables={UCQAT.data.variables as QuestionDataType["variables"]}
         />
 
+        
         
 
         
@@ -332,7 +375,12 @@ export default function PracticeQuestion() {
             ))}
           </Checkbox.Group>
         )}
+
+
         <Flex mt="xl" align="center" gap="md">
+          
+          
+          {/* BUTTON: SUBMIT */}
           <Button
             type="submit"
             variant="light"
@@ -341,6 +389,8 @@ export default function PracticeQuestion() {
           >
             {submitAnswerStatus === "loading" ? "Submitting..." : "Submit"}
           </Button>
+
+
           {(UCQAT.data.question.questionData as QuestionDataType).hints && (
             <Tooltip label="Hints" withArrow>
               <ActionIcon
