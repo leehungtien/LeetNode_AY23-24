@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useDisclosure } from '@mantine/hooks';
 import { Dialog, Group, Button, Text, ScrollArea, Textarea, Box, Loader, FileInput } from '@mantine/core';
+import ReactMarkdown from 'react-markdown';
 
 import { HarmBlockThreshold, HarmCategory, TaskType } from "@google/generative-ai";
 import { ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
@@ -322,9 +323,9 @@ const Chatbot = () => {
                 <ScrollArea h={430} my="md" pr="md" scrollbarSize={6} className="text-justify mx-2">
                     {loading
                         ? <Box className="mt-5">
-                            <p className="px-4 py-2 bg-neutral-100 rounded-md leading-8">
+                            <ReactMarkdown className="px-4 py-2 bg-neutral-100 rounded-md leading-8">
                                 {reply}
-                            </p>
+                            </ReactMarkdown>
                         </Box>
 
                         : chatHistory.map((msg) => (
@@ -332,9 +333,9 @@ const Chatbot = () => {
                                 <Text size="md" fw={600} color={msg.role == "Bot" ? "cyan" : "orange"}>
                                     {msg.role}
                                 </Text>
-                                <p className="px-4 py-2 bg-neutral-100 rounded-md leading-8">
+                                <ReactMarkdown className="px-4 py-2 bg-neutral-100 rounded-md leading-8">
                                     {msg.parts}
-                                </p>
+                                </ReactMarkdown>
                             </Box>
                         ))}
                     <div ref={messagesEndRef} />
