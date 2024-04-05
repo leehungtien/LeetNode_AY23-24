@@ -104,6 +104,27 @@ const Chatbot = () => {
             apiKey: "AIzaSyCaV5djusWE31J5Atgd71eqpHhN6Uwmy2E"
         });
 
+        const splitter = new RecursiveCharacterTextSplitter({
+            chunkSize: 1000,
+            chunkOverlap: 200
+        });
+
+        const response = await fetch('/api/readFile');
+        const { pdfText } = await response.json();
+        const splitDocs = await splitter.createDocuments([pdfText]);
+        const embeddings = new GoogleGenerativeAIEmbeddings({
+            modelName: "embedding-001", // 768 dimensions
+            taskType: TaskType.RETRIEVAL_DOCUMENT,
+            title: "LeetNode",
+            apiKey: "AIzaSyCaV5djusWE31J5Atgd71eqpHhN6Uwmy2E"
+        });
+
+        const vectorStore = await MemoryVectorStore.fromDocuments(
+            splitDocs,
+            embeddings
+        );
+        const retriever = vectorStore.asRetriever();
+
         if (hasImage) {
             //Prompt templates
             const systemTemplate = `
@@ -112,9 +133,12 @@ const Chatbot = () => {
             - You are great with Electric Circuit principles and concepts.
 
             When an image is sent along with a prompt, answer the prompt only. The image is only there to guide you.
-
-            Take a look at our previous conversations first for context: {chatHistory}. The chatHistory is prefix with role and question/answer number which will provide better context for you.
-            Input: {input}`
+            ----------
+                CONTEXT: {context}
+                ----------
+                QUESTION: {input}
+                ----------
+                Helpful Answer:`
 
             const input =
                 new HumanMessage({
@@ -145,23 +169,10 @@ const Chatbot = () => {
 
             const chain = chatPromptChain.pipe(llm).pipe(outputParser);
 
-            const transformFullChatToInputFormat = (chatHistory: Message[]) => {
-                let formattedHistory = "Old chat history:\n";
-
-                chatHistory.forEach((msg, index) => {
-
-                    // Assuming 'You' is the user and 'Bot' is the model
-                    let prefix = msg.role === 'You' ? `Question ${Math.floor(index / 2) + 1}: ` : `Answer ${Math.floor(index / 2)}: `;
-                    formattedHistory += `${prefix}${msg.parts}\n`;
-                });
-                return [{ type: "text", text: formattedHistory }];
-            };
-
-            const chatHistoryFormatted = transformFullChatToInputFormat(chatHistory);
-
+            const docs = await retriever.getRelevantDocuments(prompt);
             const res = await chain.stream({
                 input: input.content,
-                chatHistory: chatHistoryFormatted
+                context: formatDocumentsAsString(docs)
             });
 
             let text = '';
@@ -174,27 +185,6 @@ const Chatbot = () => {
             setChatHistory(updatedChat);
 
         } else {
-            const splitter = new RecursiveCharacterTextSplitter({
-                chunkSize: 1000,
-                chunkOverlap: 200
-            });
-
-            const response = await fetch('/api/readFile');
-            const { pdfText } = await response.json();
-            const splitDocs = await splitter.createDocuments([pdfText]);
-            const embeddings = new GoogleGenerativeAIEmbeddings({
-                modelName: "embedding-001", // 768 dimensions
-                taskType: TaskType.RETRIEVAL_DOCUMENT,
-                title: "LeetNode",
-                apiKey: "AIzaSyCaV5djusWE31J5Atgd71eqpHhN6Uwmy2E"
-            });
-
-            const vectorStore = await MemoryVectorStore.fromDocuments(
-                splitDocs,
-                embeddings
-            );
-            const retriever = vectorStore.asRetriever();
-
             const serializeChatHistory = (chatHistory: Array<BaseMessage>): string =>
                 chatHistory
                     .map((chatMessage) => {
