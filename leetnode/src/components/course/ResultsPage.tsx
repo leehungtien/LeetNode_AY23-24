@@ -40,7 +40,7 @@ export default function ShowResults() {
       </Center>
     );
   }
-
+  
   return (
     <Paper p="xl" radius="md" withBorder>
       {course.data?.topics.map((topic) =>

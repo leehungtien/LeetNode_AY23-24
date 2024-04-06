@@ -10,7 +10,7 @@
     "postinstall": "prisma generate",
     "studio": "prisma studio",
     "pscale": "pscale connect leetnode main",
-    "test": "jest --coverage"
+    "test": "jest --coverage "
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -36,7 +36,6 @@
     "@tanstack/react-query": "^4.28.0",
     "@tanstack/react-query-devtools": "^4.28.0",
     "@types/dompurify": "^2.4.0",
-    "@types/jest": "^29.5.6",
     "@types/katex": "^0.16.0",
     "@types/node": "18.11.17",
     "@types/nodemailer": "^6.4.7",
@@ -74,29 +73,36 @@
     "react-markdown": "^8.0.6",
     "react-particles": "^2.11.0",
     "react-pdf": "^5.7.2",
+    "react-query": "^3.39.3",
     "react-quill": "^2.0.0",
-    "rehype-katex": "^6.0.2",
+    "rehype": "^13.0.1",
+    "rehype-katex": "^6.0.3",
     "rehype-raw": "^6.1.1",
     "remark-math": "^5.1.1",
     "sharp": "^0.31.3",
     "tailwindcss": "^3.2.7",
-    "ts-jest": "^29.1.1",
     "tsparticles-engine": "^2.11.1",
     "tsparticles-slim": "^2.11.1",
     "typescript": "4.9.4",
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@babel/core": "^7.23.9",
     "@babel/preset-env": "^7.23.2",
     "@babel/preset-react": "^7.22.15",
     "@babel/preset-typescript": "^7.23.2",
     "@testing-library/dom": "^9.3.3",
-    "@testing-library/jest-dom": "^6.1.4",
-    "@testing-library/react": "^14.0.0",
+    "@testing-library/jest-dom": "^6.4.1",
+    "@testing-library/react": "^14.2.1",
+    "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "^14.5.1",
+    "@types/jest": "^29.5.12",
+    "@types/react-query": "^1.2.9",
+    "identity-obj-proxy": "^3.0.0",
     "jest-environment-jsdom": "^29.7.0",
     "prettier": "^2.8.6",
     "prettier-plugin-tailwindcss": "^0.2.5",
+    "ts-jest": "^29.1.2",
     "ts-node": "^10.9.1"
   },
   "ct3aMetadata": {

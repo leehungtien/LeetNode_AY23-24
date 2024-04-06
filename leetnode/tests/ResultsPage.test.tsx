@@ -1,14 +1,7 @@
-// ResultsPage.test.tsx
-// import ShowResults from "../src/components/course/ResultsPage";
 import React from "react";
 
-import ResultsPage from "@/components/course/ResultsPage";
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQueries,
-} from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { render, screen, waitFor } from "@testing-library/react";
 
 import ShowResults from "../src/components/course/ResultsPage";
 
@@ -20,31 +13,29 @@ jest.mock('next/router', () => ({
   }),
 }));
 
-
-
-test('renders loading indicator when course is not available', () => {
-  render(<ShowResults />);
-  
-  // Find the loading indicator element
-  const loadingIndicator = screen.getByText('Loading...');
-  
-  // Assert that the loading indicator element is defined and not null
-  expect(loadingIndicator).toBeDefined();
-  expect(loadingIndicator).not.toBeNull();
-});
-
-// Create a QueryClient instance
-const queryClient = new QueryClient();
-
 describe('ResultsPage', () => {
-  test('renders loading indicator when course is not available', () => {
+  test('renders loading indicator when course is not available', async () => {
+    // Create a QueryClient instance
+    const queryClient = new QueryClient();
+
+    // Render the component within QueryClientProvider
     render(
       <QueryClientProvider client={queryClient}>
-        <ResultsPage />
+        <ShowResults />
       </QueryClientProvider>
     );
-    
-    // Your test assertions here
+
+    await waitFor(() => {
+      const loadingIndicator = screen.getByText('Loading...', { exact: false });
+      expect(loadingIndicator).toBeDefined();
+      expect(loadingIndicator).not.toBeNull();
+    });
+
+    // Find the loading indicator element
+    const loadingIndicator = screen.getByText('Loading...', { exact: false });
+  
+    // Assert that the loading indicator element is defined and not null
+    expect(loadingIndicator).toBeDefined();
+    expect(loadingIndicator).not.toBeNull();
   });
 });
-

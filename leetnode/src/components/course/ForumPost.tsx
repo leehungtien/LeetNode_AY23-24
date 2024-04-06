@@ -52,6 +52,8 @@ const ForumPost = ({
 }) => {
   const session = useSession();
   const queryClient = useQueryClient();
+
+  
   const { classes } = useStyles();
 
   const [message, setMessage] = useState("");
