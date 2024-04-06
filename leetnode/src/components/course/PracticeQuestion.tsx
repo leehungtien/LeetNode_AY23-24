@@ -25,17 +25,15 @@ import {
   Radio,
   Stack,
   Text,
-  Tooltip,
   useMantineTheme,
 } from "@mantine/core";
 import { Question, QuestionWithAddedTime, User } from "@prisma/client";
 import { IconBulb } from "@tabler/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+/*TESTING ONLY*/
 import CanvasTool from "../drawing/CanvaTool";
 import Highlighter from "./Highlighter";
-
-/*TESTING ONLY*/
 
 interface UserData extends User {
   attempts: { [timestamp: string]: number };
@@ -52,6 +50,7 @@ export default function PracticeQuestion() {
 
   // State to control the visibility of CanvasBrand
   const [isCanvasBrandActive, setIsCanvasBrandActive] = useState(true);
+
 
   // Toggle function for CanvasBrand visibility
   const toggleCanvasBrand = () => {
@@ -128,11 +127,14 @@ export default function PracticeQuestion() {
         updatePoints(); // Update points for attempting questions
       },
     });
+    
 
     return {
       submitAnswer,
       submitAnswerStatus,
     };
+    
+
   };
 
   const { submitAnswer, submitAnswerStatus } = useSubmitAnswer();
@@ -222,7 +224,7 @@ export default function PracticeQuestion() {
   return (
     <Paper p="xl" radius="md" withBorder>
 
-      <Highlighter/>
+      
       
       <form
         onSubmit={(e) => {
@@ -256,16 +258,19 @@ export default function PracticeQuestion() {
           {...{ radius: "lg", size: "md" }}
         />
         
-
+        <Highlighter/>
         
         <div className="rawhtml mt-4 relative" style={{ position: 'relative' }}>
 
             <Button onClick={toggleCanvasBrand}>
-              {isCanvasBrandActive ? 'Canvas Tool: ACTIVE' : 'Canvas Tool: INACTIVE'}
+              {/* Set DEFAULT STATE to INACTIVE */}
+              {isCanvasBrandActive ? 'Canvas Tool: INACTIVE' : 'Canvas Tool: ACTIVE'}
             </Button>
 
             {/* Conditionally render the CanvasBrand based on isCanvasBrandActive state */}
-            <CanvasTool isVisible={isCanvasBrandActive} />
+            {/* Set DEFAULT STATE to INACTIVE - set to "!isCanvasBrandActive" */}
+            <CanvasTool isVisible={!isCanvasBrandActive} />
+
             
             
 
@@ -392,7 +397,6 @@ export default function PracticeQuestion() {
 
 
           {(UCQAT.data.question.questionData as QuestionDataType).hints && (
-            <Tooltip label="Hints" withArrow>
               <ActionIcon
                 size="lg"
                 variant="light"
@@ -401,7 +405,6 @@ export default function PracticeQuestion() {
               >
                 <IconBulb size={20} />
               </ActionIcon>
-            </Tooltip>
           )}
         </Flex>
 
