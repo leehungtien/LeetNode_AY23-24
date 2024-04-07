@@ -243,6 +243,7 @@ const Performance = () => {
             label="All students who need help!"
             checked={checkedHelp}
             onChange={(event) => setCheckedHelp(event.currentTarget.checked)}
+            data-testid="help-checkbox"
           />
           <Select
             size="sm"
