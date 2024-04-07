@@ -1,9 +1,21 @@
 // Mock ResizeObserver globally
-global.ResizeObserver = class ResizeObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-}; 
+// global.ResizeObserver = class ResizeObserver {
+//   observe() {}
+//   unobserve() {}
+//   disconnect() {}
+// };
+class ResizeObserver {
+  observe() {
+      // do nothing
+  }
+  unobserve() {
+      // do nothing
+  }
+  disconnect() {
+      // do nothing
+  }
+} 
+window.ResizeObserver = ResizeObserver;
 
 import React, { useState } from 'react';
 import { render, fireEvent, waitFor, screen } from '@testing-library/react';

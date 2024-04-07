@@ -2,10 +2,21 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import VariablesBox from './VariablesBox'; // Update the path accordingly
 
-// Mocking dependencies if necessary
 jest.mock('@/components/Latex', () => {
-  return ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
+  // First, define the functional component with proper typing
+  const MockedLatex = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
+  
+  // Then, assign a displayName to that functional component
+  MockedLatex.displayName = 'Latex';
+  
+  // Finally, return the mocked component
+  return MockedLatex;
 });
+// // Mocking dependencies if necessary
+// jest.mock('@/components/Latex', () => {
+//   return ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
+// });
+
 
 // Mocking the useMantineTheme hook
 jest.mock('@mantine/core', () => ({
