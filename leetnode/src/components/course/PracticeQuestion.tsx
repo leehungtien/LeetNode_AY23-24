@@ -1,3 +1,4 @@
+
 import axios from "axios";
 import DOMPurify from "dompurify";
 import { useSession } from "next-auth/react";
@@ -16,6 +17,7 @@ import {
   Button,
   Center,
   Checkbox,
+  Drawer,
   Flex,
   Loader,
   Modal,
@@ -23,19 +25,19 @@ import {
   Radio,
   Stack,
   Text,
-  Tooltip,
   useMantineTheme,
 } from "@mantine/core";
 import { Question, QuestionWithAddedTime, User } from "@prisma/client";
 import { IconBulb } from "@tabler/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+/*TESTING ONLY*/
+import CanvasTool from "../drawing/CanvaTool";
+import Highlighter from "./Highlighter";
+
 interface UserData extends User {
   attempts: { [timestamp: string]: number };
 }
-
-// import highlighter component
-import Highlighter from './Highlighter';
 
 export type UCQATAnswersType = {
   key: string;
@@ -45,6 +47,17 @@ export type UCQATAnswersType = {
 }[];
 
 export default function PracticeQuestion() {
+
+  // State to control the visibility of CanvasBrand
+  const [isCanvasBrandActive, setIsCanvasBrandActive] = useState(true);
+
+
+  // Toggle function for CanvasBrand visibility
+  const toggleCanvasBrand = () => {
+    setIsCanvasBrandActive(!isCanvasBrandActive);
+  };
+
+
   const session = useSession();
   const theme = useMantineTheme();
 
@@ -114,11 +127,14 @@ export default function PracticeQuestion() {
         updatePoints(); // Update points for attempting questions
       },
     });
+    
 
     return {
       submitAnswer,
       submitAnswerStatus,
     };
+    
+
   };
 
   const { submitAnswer, submitAnswerStatus } = useSubmitAnswer();
@@ -202,8 +218,7 @@ export default function PracticeQuestion() {
 
   return (
     <Paper p="xl" radius="md" withBorder>
-      {/* Highlighter Component */}
-      <Highlighter />
+
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -227,27 +242,76 @@ export default function PracticeQuestion() {
           });
         }}
       >
+        <Button onClick={toggleCanvasBrand}
+        style={{
+          backgroundColor: '#15aabf', // No background color for a transparent button
+          fontSize: '1rem', // Extra-large text size
+          marginBottom: '0.5rem', // Extra-small margin-bottom
+          fontWeight: 500, // Bold font weight
+          color: 'white', // Cyan text color
+          border: 'none', // No border for the button
+          padding: '8px 16px', // Standard padding; adjust as needed
+          outline: 'none', // Remove outline on focus
+          cursor: 'pointer', // Change cursor to pointer to indicate it's a button
+          borderRadius: '10px', // Adjust this value to get the desired roundness of corners
+        }}>
+          {/* Set DEFAULT STATE to INACTIVE */}
+          {isCanvasBrandActive ? 'Canvas Tool: INACTIVE' : 'Canvas Tool: ACTIVE'}
+        </Button>
+
+        {/* Conditionally render the CanvasBrand based on isCanvasBrandActive state */}
+        {/* Set DEFAULT STATE to INACTIVE - set to "!isCanvasBrandActive" */}
+        <CanvasTool isVisible={!isCanvasBrandActive} />
+
+        <div className="rawhtml mt-4 relative" style={{ position: 'relative' }}>
+
+        <Highlighter/>  
+        <div/>
+        
+
+        {/* QUESTION BADGE: EASY/MEDIUM/HARD DIFFICULTY + QUESTION + DIAGRAM*/}
+
         <QuestionDifficultyBadge
           questionDifficulty={UCQAT.data.question.questionDifficulty}
           {...{ radius: "lg", size: "md" }}
         />
-        <div
-          className="rawhtml mt-4"
-          dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(UCQAT.data.question.questionContent, {
-              ADD_TAGS: ["iframe"],
-              ADD_ATTR: [
-                "allow",
-                "allowfullscreen",
-                "frameborder",
-                "scrolling",
-              ],
-            }),
-          }}
-        />
+
+            {/* Render the sanitized HTML content */}
+            <div dangerouslySetInnerHTML={{ 
+              __html: DOMPurify.sanitize(UCQAT.data.question.questionContent, {
+                ADD_TAGS: ["iframe"],
+                ADD_ATTR: [
+                  "allow",
+                  "allowfullscreen",
+                  "frameborder",
+                  "scrolling",
+                ],
+              }),
+            }} 
+            />
+
+            
+                  
+        </div>
+
+        
+
+        
+        
+        
+          
+
+        {/* VARIABLES BOX (WITH VALUES OF COMPONENTS LIKE R1 R2 R3 etc....) */}
+
         <VariablesBox
           variables={UCQAT.data.variables as QuestionDataType["variables"]}
         />
+
+        
+        
+
+        
+
         {correctKeys.length === 1 ? (
           <Radio.Group
             mt="xl"
@@ -316,7 +380,12 @@ export default function PracticeQuestion() {
             ))}
           </Checkbox.Group>
         )}
+
+
         <Flex mt="xl" align="center" gap="md">
+          
+          
+          {/* BUTTON: SUBMIT */}
           <Button
             type="submit"
             variant="light"
@@ -325,8 +394,9 @@ export default function PracticeQuestion() {
           >
             {submitAnswerStatus === "loading" ? "Submitting..." : "Submit"}
           </Button>
+
+
           {(UCQAT.data.question.questionData as QuestionDataType).hints && (
-            <Tooltip label="Hints" withArrow>
               <ActionIcon
                 size="lg"
                 variant="light"
@@ -335,11 +405,11 @@ export default function PracticeQuestion() {
               >
                 <IconBulb size={20} />
               </ActionIcon>
-            </Tooltip>
           )}
         </Flex>
 
         {/* Hints Modal */}
+
         <Modal
           opened={hintsOpened}
           onClose={() => setHintsOpened(false)}
@@ -360,6 +430,8 @@ export default function PracticeQuestion() {
             )}
           </Stack>
         </Modal>
+
+        
       </form>
     </Paper>
   );

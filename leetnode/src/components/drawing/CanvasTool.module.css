@@ -1,0 +1,10 @@
+/* CanvasTool.module.css */
+
+.labelCanvasFont {
+    font-family: 'Arial Bold', 'Helvetica Bold', sans-serif;
+    font-size: 18px;
+    color: #000000;
+    font-weight: bold;
+}
+
+/* ... Other component-specific styles ... */
