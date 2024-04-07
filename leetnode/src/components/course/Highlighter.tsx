@@ -116,12 +116,13 @@ export default function Highlighter() {
   return (
     <div>
     <button
+      type="button" // This ensures the button does not submit the form in PracQuestions.tsx
       onClick={toggleHighlighter}
       style={{
         backgroundColor: '#15aabf', // No background color for a transparent button
         fontSize: '1rem', // Extra-large text size
         marginBottom: '0.5rem', // Extra-small margin-bottom
-        fontWeight: 700, // Bold font weight
+        fontWeight: 500, // Bold font weight
         color: 'white', // Cyan text color
         border: 'none', // No border for the button
         padding: '8px 16px', // Standard padding; adjust as needed
@@ -135,8 +136,12 @@ export default function Highlighter() {
       {isActive && (
         <>
           <div style={{ display: 'inline-block' }}> {/* Add inline-block display */}
-            <button onClick={undoHighlight}>Erase All Highlighting</button>
-            <button onClick={toggleEraser}>
+            <button 
+              type="button" // This ensures the button does not submit the form in PracQuestions.tsx
+              onClick={undoHighlight}>Erase All Highlighting</button>
+            <button
+              type="button" // This ensures the button does not submit the form in PracQuestions.tsx 
+              onClick={toggleEraser}>
               {isEraserActive ? 'Deactivate Eraser' : 'Activate Eraser'}
             </button>
           </div>
@@ -148,7 +153,9 @@ export default function Highlighter() {
               value={selectedColor}
               onChange={handleColorChange}
             />
-            <button onClick={confirmColorSelection}>Confirm</button>
+            <button 
+              type="button" // This ensures the button does not submit the form in PracQuestions.tsx
+              onClick={confirmColorSelection}>Confirm</button>
           </div>
         </>
       )}
