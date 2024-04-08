@@ -218,7 +218,7 @@ export default function PracticeQuestion() {
 
   return (
     <Paper p="xl" radius="md" withBorder>
-
+      <Highlighter/>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -241,33 +241,7 @@ export default function PracticeQuestion() {
             },
           });
         }}
-      >
-        <Button onClick={toggleCanvasBrand}
-        style={{
-          backgroundColor: '#15aabf', // No background color for a transparent button
-          fontSize: '1rem', // Extra-large text size
-          marginBottom: '0.5rem', // Extra-small margin-bottom
-          fontWeight: 500, // Bold font weight
-          color: 'white', // Cyan text color
-          border: 'none', // No border for the button
-          padding: '8px 16px', // Standard padding; adjust as needed
-          outline: 'none', // Remove outline on focus
-          cursor: 'pointer', // Change cursor to pointer to indicate it's a button
-          borderRadius: '10px', // Adjust this value to get the desired roundness of corners
-        }}>
-          {/* Set DEFAULT STATE to INACTIVE */}
-          {isCanvasBrandActive ? 'Canvas Tool: INACTIVE' : 'Canvas Tool: ACTIVE'}
-        </Button>
-
-        {/* Conditionally render the CanvasBrand based on isCanvasBrandActive state */}
-        {/* Set DEFAULT STATE to INACTIVE - set to "!isCanvasBrandActive" */}
-        <CanvasTool isVisible={!isCanvasBrandActive} />
-
-        <div className="rawhtml mt-4 relative" style={{ position: 'relative' }}>
-
-        <Highlighter/>  
-        <div/>
-        
+      > 
 
         {/* QUESTION BADGE: EASY/MEDIUM/HARD DIFFICULTY + QUESTION + DIAGRAM*/}
 
@@ -275,6 +249,18 @@ export default function PracticeQuestion() {
           questionDifficulty={UCQAT.data.question.questionDifficulty}
           {...{ radius: "lg", size: "md" }}
         />
+
+        
+
+        <div className="rawhtml mt-4 relative" style={{ position: 'relative' }}>
+        <Button onClick={toggleCanvasBrand}>
+        {/* Set DEFAULT STATE to INACTIVE */}
+        {isCanvasBrandActive ? 'Canvas Tool: INACTIVE' : 'Canvas Tool: ACTIVE'}
+          </Button>
+
+        {/* Conditionally render the CanvasBrand based on isCanvasBrandActive state */}
+        {/* Set DEFAULT STATE to INACTIVE - set to "!isCanvasBrandActive" */}
+        <CanvasTool isVisible={!isCanvasBrandActive} />
 
             {/* Render the sanitized HTML content */}
             <div dangerouslySetInnerHTML={{ 
