@@ -224,8 +224,6 @@ export default function PracticeQuestion() {
   return (
     <Paper p="xl" radius="md" withBorder>
 
-      
-      
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -258,59 +256,75 @@ export default function PracticeQuestion() {
           {...{ radius: "lg", size: "md" }}
         />
         
-        <Highlighter/>
+        <br/> 
+        Guidelines for using Highlighter/Annotation(Canvas) tools: 
+            <br/>  
+            - When Canvas Tool is 'inactive', highlighting is permitted only when activated.
+            <br/> 
+            - When Canvas Tool is 'active', highlighting is not permitted even when activated.
+            <br/> 
+            - When drawing using the annotative Canvas Tool, you can disable the tool to temporarily clear your drawings. <br/>
+            (You can re-enable it afterwards, for your annotations or drawings to reappear.)
+            <br/> 
+            <br/>
+            Note: You can only select answer options when Canvas Tool is disabled!
         
         <div className="rawhtml mt-4 relative" style={{ position: 'relative' }}>
+          
 
-            <Button onClick={toggleCanvasBrand}>
-              {/* Set DEFAULT STATE to INACTIVE */}
-              {isCanvasBrandActive ? 'Canvas Tool: INACTIVE' : 'Canvas Tool: ACTIVE'}
-            </Button>
-
-            {/* Conditionally render the CanvasBrand based on isCanvasBrandActive state */}
-            {/* Set DEFAULT STATE to INACTIVE - set to "!isCanvasBrandActive" */}
-            <CanvasTool isVisible={!isCanvasBrandActive} />
-
-            
-            
-
-
-
-            {/* Render the sanitized HTML content */}
-            <div dangerouslySetInnerHTML={{ 
-              __html: DOMPurify.sanitize(UCQAT.data.question.questionContent, {
-                ADD_TAGS: ["iframe"],
-                ADD_ATTR: [
-                  "allow",
-                  "allowfullscreen",
-                  "frameborder",
-                  "scrolling",
-                ],
-              }),
+          <Highlighter/>
+          {/* Conditionally render the CanvasBrand based on isCanvasBrandActive state */}
+          <Button onClick={toggleCanvasBrand}
+            style={{
+              backgroundColor: '#15aabf', // No background color for a transparent button
+              fontSize: '1rem', // Extra-large text size
+              marginBottom: '0.5rem', // Extra-small margin-bottom
+              fontWeight: 500, // Bold font weight
+              color: 'white', // Cyan text color
+              border: 'none', // No border for the button
+              padding: '8px 16px', // Standard padding; adjust as needed
+              outline: 'none', // Remove outline on focus
+              cursor: 'pointer', // Change cursor to pointer to indicate it's a button
+              borderRadius: '10px', // Adjust this value to get the desired roundness of corners
             }} 
-            />
-
+          >
             
+            {/* Set DEFAULT STATE to INACTIVE */}
+            {isCanvasBrandActive 
+              ? 'Canvas Tool: INACTIVE'
+              : 'Canvas Tool: ACTIVE'}
+          </Button>
+          
+          {/* Set DEFAULT STATE to INACTIVE - set to "!isCanvasBrandActive" */}
+          <CanvasTool isVisible={!isCanvasBrandActive} />
+          
+          {/* LINE BREAK x 3 : needed for appropriate annotation formatting*/}
+          <br/>
+          <br/>
+
+          {/* Render the sanitized HTML content */}
+          <div dangerouslySetInnerHTML={{ 
+            
+            __html: DOMPurify.sanitize(UCQAT.data.question.questionContent, {
+              ADD_TAGS: ["iframe"],
+              ADD_ATTR: [
+                "allow",
+                "allowfullscreen",
+                "frameborder",
+                "scrolling",
+              ],
+            }),
+          }} />
                   
         </div>
 
-        
-
-        
-        
-        
-          
+        <br/>
+        <br/>
 
         {/* VARIABLES BOX (WITH VALUES OF COMPONENTS LIKE R1 R2 R3 etc....) */}
-
         <VariablesBox
           variables={UCQAT.data.variables as QuestionDataType["variables"]}
         />
-
-        
-        
-
-        
 
         {correctKeys.length === 1 ? (
           <Radio.Group
