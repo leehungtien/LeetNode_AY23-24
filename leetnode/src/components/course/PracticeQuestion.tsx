@@ -218,7 +218,7 @@ export default function PracticeQuestion() {
 
   return (
     <Paper p="xl" radius="md" withBorder>
-      <Highlighter/>
+      
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -242,7 +242,7 @@ export default function PracticeQuestion() {
           });
         }}
       > 
-
+        <Highlighter/>
         {/* QUESTION BADGE: EASY/MEDIUM/HARD DIFFICULTY + QUESTION + DIAGRAM*/}
 
         <QuestionDifficultyBadge
