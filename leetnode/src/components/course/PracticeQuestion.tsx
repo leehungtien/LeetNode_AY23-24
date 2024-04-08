@@ -216,14 +216,8 @@ export default function PracticeQuestion() {
     .filter((item) => item.isCorrect)
     .map((item) => item.key);
 
-
-
-
-
-
   return (
     <Paper p="xl" radius="md" withBorder>
-
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -246,15 +240,15 @@ export default function PracticeQuestion() {
             },
           });
         }}
-      >
-        
-
+      > 
+        <Highlighter/>
         {/* QUESTION BADGE: EASY/MEDIUM/HARD DIFFICULTY + QUESTION + DIAGRAM*/}
 
         <QuestionDifficultyBadge
           questionDifficulty={UCQAT.data.question.questionDifficulty}
           {...{ radius: "lg", size: "md" }}
         />
+
         
         <br/> 
         Guidelines for using Highlighter/Annotation(Canvas) tools: 
