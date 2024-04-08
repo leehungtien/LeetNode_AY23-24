@@ -5,7 +5,7 @@ export default function Highlighter() {
   const [highlightColor, setHighlightColor] = useState('#FFFF00');
   const [selectedColor, setSelectedColor] = useState('#FFFF00');
   const [isEraserActive, setIsEraserActive] = useState(false);
-
+  
   useEffect(() => {
     const handleMouseUp = () => {
       if (isEraserActive) {
@@ -29,21 +29,21 @@ export default function Highlighter() {
         const selection = window.getSelection();
         if (!selection || selection.isCollapsed) return;
         const range = selection.getRangeAt(0);
-
+  
         const selectionContents = range.cloneContents();
         const textNodes = Array.from(selectionContents.childNodes).filter(node => 
           node.nodeType === Node.TEXT_NODE && node.textContent && node.textContent.trim().length > 0
         );
         const nodes = Array.from(selectionContents.querySelectorAll('*'));
-
+  
         const containsImage = nodes.some(node => node.nodeName === 'IMG');
         const containsNonImageElementOrText = textNodes.length > 0 || nodes.some(node =>
           (node.nodeType === Node.TEXT_NODE && node.textContent && node.textContent.trim().length > 0) ||
           (node.nodeType === Node.ELEMENT_NODE && node.nodeName !== 'IMG')
         );
-
+  
         console.log('containsImage:', containsImage, 'containsNonImageElementOrText:', containsNonImageElementOrText);
-
+        
         if (containsImage && containsNonImageElementOrText) {
           alert('Please highlight text only.');
           window.getSelection()?.removeAllRanges(); // Clear the selection to prevent accidental highlighting
@@ -73,7 +73,7 @@ export default function Highlighter() {
         }
       }
     };
-
+    
     if (isActive || isEraserActive) {
       document.addEventListener('mouseup', handleMouseUp);
     } else {

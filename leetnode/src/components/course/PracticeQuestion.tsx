@@ -241,7 +241,7 @@ export default function PracticeQuestion() {
           });
         }}
       > 
-        <Highlighter/>
+        
         {/* QUESTION BADGE: EASY/MEDIUM/HARD DIFFICULTY + QUESTION + DIAGRAM*/}
 
         <QuestionDifficultyBadge
@@ -265,7 +265,6 @@ export default function PracticeQuestion() {
         
         <div className="rawhtml mt-4 relative" style={{ position: 'relative' }}>
           
-
           <Highlighter/>
           {/* Conditionally render the CanvasBrand based on isCanvasBrandActive state */}
           <Button onClick={toggleCanvasBrand}
