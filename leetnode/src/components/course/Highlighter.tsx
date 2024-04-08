@@ -52,7 +52,6 @@ export default function Highlighter() {
           window.getSelection()?.removeAllRanges(); // Clear the selection to prevent accidental highlighting
         } else if (!containsImage && containsNonImageElementOrText) {
           const selection = window.getSelection();
-
           // Check if selection is not null and rangeCount is more than 0
           if (selection && selection.rangeCount) {
             const range = selection.getRangeAt(0);
