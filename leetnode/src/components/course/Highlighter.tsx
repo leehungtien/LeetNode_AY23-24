@@ -29,7 +29,17 @@ export default function Highlighter() {
         const selection = window.getSelection();
         if (!selection || selection.isCollapsed) return;
         const range = selection.getRangeAt(0);
-  
+        const selectedText = range.toString();
+
+        console.log('selectedText:', selectedText);
+        
+        // // Check if the selection includes the text "MEDIUM DIFFICULTY"
+        // if (selectedText.includes('MEDIUM DIFFICULTY')) {
+        //   alert('Highlighting "MEDIUM DIFFICULTY" is not allowed.');
+        //   window.getSelection()?.removeAllRanges(); // Clear the selection to prevent accidental highlighting
+        //   return; // Exit the function to prevent highlighting
+        // }
+    
         const selectionContents = range.cloneContents();
         const textNodes = Array.from(selectionContents.childNodes).filter(node => 
           node.nodeType === Node.TEXT_NODE && node.textContent && node.textContent.trim().length > 0
@@ -52,7 +62,6 @@ export default function Highlighter() {
           window.getSelection()?.removeAllRanges(); // Clear the selection to prevent accidental highlighting
         } else if (!containsImage && containsNonImageElementOrText) {
           const selection = window.getSelection();
-
           // Check if selection is not null and rangeCount is more than 0
           if (selection && selection.rangeCount) {
             const range = selection.getRangeAt(0);
