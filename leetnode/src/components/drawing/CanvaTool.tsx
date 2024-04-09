@@ -285,228 +285,252 @@ function CanvasTool({ isVisible }: { isVisible: boolean }): JSX.Element {
     //////////////////////////////////////////////////////////////////
 
     return (
-        <div style={{ position: "relative", display: isVisible ? 'block' : 'none' }}>
-        
-        {/* Eraser Size Input and Label */}
-        {isErasing && (
-            <>  {/* Scrollbar for eraser size*/}
-                <input
-                    type="range"
-                    min="5"
-                    max="50"
-                    value={eraserSize}
-                    onChange={handleEraserSizeChange}
-                    style={{
-                    position: "absolute",
-                    top: "110px",
-                    left: "1230px",
-                    zIndex: 2,
-                    }}
-                />
-                <label
-                    className={styles.labelCanvasFont}
-                    style={{
-                    position: "absolute",
-                    top: "83px",
-                    left: "1230px",
-                    zIndex: 2,
-                    }}
-                >
-                    Eraser Size: 
-                        <input
-                            type="number"
-                            min="1"
-                            max="50"
-                            value={eraserSize}
-                            onChange={handleEraserSizeChange}
-                            style={{
-                                width: "60px", // Give enough space for typing out numbers
-                                marginLeft: "7px",
-                            }}
-                        />
-                </label>
-            </>
-        )}
+        <div className="canvas-toolbar" style={{ position: "relative", display: isVisible ? 'block' : 'none' }}>
 
-        {/* Pen Size Input and Label */}
-        {!isErasing && (
-            <>  {/* Scrollbar for pen size*/}
-                <input
-                    type="range"
-                    min="1"
-                    max="50"
-                    value={penSize}
-                    onChange={handlePenSizeChange}
-                    style={{
-                    position: "absolute",
-                    top: "110px",
-                    left: "1230px",
-                    zIndex: 2,
-                    }}
-                />
-                <label
-                    className={styles.labelCanvasFont}
-                    style={{
-                    position: "absolute",
-                    top: "83px",
-                    left: "1230px",
-                    zIndex: 2,
-                    }}
-                >
-                    Pen Size: 
-                        <input
-                            type="number"
-                            min="1"
-                            max="50"
-                            value={penSize}
-                            onChange={handlePenSizeChange}
-                            style={{
-                                width: "60px", // Give enough space for typing out numbers
-                                marginLeft: "20px",
-                            }}
-                        />
-                </label>
-                
-                {/* Button to set pen colour */}
-                <input
-                    type="color"
-                    value={color}
-                    onChange={(e) => setColor(e.target.value)}
-                    style={{ position: "absolute", top: "150px", left: "1330px", zIndex: 2 }}
-                />
-                <label 
-                    className={styles.labelCanvasFont}
-                    style={{ position: "absolute", top: "150px", left: "1230px", zIndex: 2 }}>
-                    Pen Color:
-                </label>
-            </>
-        )}
+            {/*///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
+                                                            
+                                                            {/* PEN AND ERASER SIZE-COLOUR */}
 
-                                {/* REMAINING BUTTONS */}
-        
-        {/* /////////////////////////////////////////////////////////////////////// */}
-        {/* /////////////////////////////////////////////////////////////////////// */}
+            {/* Eraser Size Input and Label */}
+            {isErasing && (
+                <>  {/* Scrollbar for eraser size*/}
+                    <input
+                        type="range"
+                        min="5"
+                        max="50"
+                        value={eraserSize}
+                        onChange={handleEraserSizeChange}
+                        style={{
+                        position: "absolute",
+                        top: "49px",
+                        // left: "1230px", // ORIGINAL
+                        left: "550px", 
+                        zIndex: 2,
+                        }}
+                    />
+                    <label
+                        className={styles.labelCanvasFont}
+                        style={{
+                        position: "absolute",
+                        top: "18px",
+                        // left: "1230px", // ORIGINAL
+                        left: "550px",
+                        zIndex: 2,
+                        }}
+                    >
+                        Eraser Size: 
+                            <input
+                                type="number"
+                                min="1"
+                                max="50"
+                                value={eraserSize}
+                                onChange={handleEraserSizeChange}
+                                style={{
+                                    width: "60px", // Give enough space for typing out numbers
+                                    marginLeft: "10px",
+                                }}
+                            />
+                    </label>
+                </>
+            )}
 
-        {/* Button to COMPLETELY RESET All Drawings - clears all Undo/Redo HISTORY! */}
-        <button
-            onClick={clearCanvas}
-            style={{
-                position: "absolute",
-                top: "209px",
-                left: "1232.5px",
-                padding: "10px",
-                border: "2px solid black",
-                zIndex: 2,
-                backgroundColor: "red",  // Set the background color to red
-                color: "white",           // Set the font color to white
-                cursor: "pointer",         // Change cursor on hover to indicate it's clickable
-                fontWeight: "bold"  // Make the label text bold
-            }}
-        >
-            Reset All
-        </button>
-
+            {/* Pen Size Input and Label */}
+            {!isErasing && (
+                <>  {/* Scrollbar for pen size*/}
+                    <input
+                        type="range"
+                        min="1"
+                        max="50"
+                        value={penSize}
+                        onChange={handlePenSizeChange}
+                        style={{
+                        position: "absolute",
+                        top: "49px",
+                        // left: "1230px", // ORIGINAL
+                        left: "550px", 
+                        zIndex: 2,
+                        }}
+                    />
+                    <label
+                        className={styles.labelCanvasFont}
+                        style={{
+                        position: "absolute",
+                        top: "18px",
+                        // left: "1230px", // ORIGINAL
+                        left: "550px",
+                        zIndex: 2,
+                        }}
+                    >
+                        Pen Size: 
+                            <input
+                                type="number"
+                                min="1"
+                                max="50"
+                                value={penSize}
+                                onChange={handlePenSizeChange}
+                                style={{
+                                    width: "60px", // Give enough space for typing out numbers
+                                    marginLeft: "20px",
+                                }}
+                            />
+                    </label>
                     
+                    {/* Button to set pen colour */}
+                    <label 
+                        className={styles.labelCanvasFont}
+                        // style={{ position: "absolute", top: "150px", left: "1230px" , zIndex: 2 }}  /* ORIGINAL*/  > 
+                        style={{ position: "absolute", top: "15px", left: "720px" , zIndex: 2 }} >
+                        Pen Color:
+                        <input
+                            type="color"
+                            value={color}
+                            onChange={(e) => setColor(e.target.value)}
+                            // style={{ position: "absolute", top: "150px", left: "1330px" , zIndex: 2 }} /* ORIGINAL*/
+                            style={{
+                                width: "60px", // Give enough space for typing out numbers
+                                marginLeft: "10px",
+                            }}
+                        />
+                    </label>
+                </>
+            )}
+
+            {/*///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*/}
+
+                                                    {/* REMAINING BUTTONS */}
+            
+            {/* /////////////////////////////////////////////////////////////////////// */}
+            {/* /////////////////////////////////////////////////////////////////////// */}
+
+            {/* Button to COMPLETELY RESET All Drawings - clears all Undo/Redo HISTORY! */}
+            <button
+                onClick={clearCanvas}
+                style={{
+                    position: "absolute",
+                    top: "15px",
+                    // left: "1232.5px", /* ORIGINAL*/
+                    left: "430.5px",
+                    padding: "10px",
+                    border: "2px solid black",
+                    zIndex: 2,
+                    backgroundColor: "red",  // Set the background color to red
+                    color: "white",           // Set the font color to white
+                    cursor: "pointer",         // Change cursor on hover to indicate it's clickable
+                    fontWeight: "bold"  // Make the label text bold
+                }}
+            >
+                Reset All
+            </button>
+
+                        
 
 
 
 
-        {/* Button to Toggle between Pen and Eraser */}
-        <button
-            onClick={toggleEraser}
-            style={{
-            position: "absolute",
-            top: "80px",
-            left: "1102.6px",
-            padding: "6.1px",
-            border: "2px solid black",
-            zIndex: 2,
-            cursor: "pointer",         // Change cursor on hover to indicate it's clickable
-            }}
-        >   
-            {/* Styling Purposes */}
-            <span style={{ fontWeight: 'bold' }}>Current Tool: </span> 
-            <br /> {isErasing ? "🧽 Eraser" : "🖊️ Pen"}
-        </button>
-        
-
-
-        
-        {/* Button to Toggle the state of the tool (pen/eraser) - to prevent accidental tool actions caused */}
-        <button
-            onClick={togglePen}
-            style={{
-            position: "absolute",
-            top: "136px",
-            left: "1102.5px",
-            padding: "9.9px",
-            border: "2px solid black",
-            zIndex: 2,
-            cursor: "pointer",         // Change cursor on hover to indicate it's clickable
-            }}
-        >
-            <span style={{ fontWeight: 'bold' }}>Tool Status: </span> 
-            <br /> {isPenActive ? "💡 Active" : "💤 Inactive"}
-        </button>
-
-        {/* User Interface - Allow for drawing */}
-        <canvas
-            onMouseDown={startDrawing}
-            onMouseUp={finishDrawing}
-            onMouseMove={draw}
-            onTouchStart={startDrawing}
-            onTouchEnd={finishDrawing}
-            onTouchMove={draw}
-            ref={drawingCanvasRef}
-            style={{ position: "absolute", top: 0, left: 0, zIndex: 1 }}
-        />
-
-        {/* Button to UNDO most recent action (pen/eraser) */}
-        <button onClick={setUndo}
-            style={{
+            {/* Button to Toggle between Pen and Eraser */}
+            <button
+                onClick={toggleEraser}
+                style={{
                 position: "absolute",
-                top: "200px",
-                left: "1100px",
+                top: "10px",
+                // left: "1102.6px", /* ORIGINAL*/
+                left: "52.6px",
                 padding: "7.5px",
                 border: "2px solid black",
                 zIndex: 2,
                 cursor: "pointer",         // Change cursor on hover to indicate it's clickable
-            }}
-        >
-        <span style={{ fontWeight: 'bold' }}> Undo </span>
-        <br/>
-            ⬅️
-        </button>
-        
-        {/* Button to REDO previously undone action (pen/eraser) */}
-        <button onClick={setRedo}
-            style={{
+                }}
+            >   
+                {/* Styling Purposes */}
+                <span style={{ fontWeight: 'bold' }}>Current Tool: </span> 
+                <br /> {isErasing ? "🧽 Eraser" : "🖊️ Pen"}
+            </button>
+            
+
+
+            
+            {/* Button to Toggle the state of the tool (pen/eraser) - to prevent accidental tool actions caused */}
+            <button
+                onClick={togglePen}
+                style={{
                 position: "absolute",
-                top: "200px",
-                left: "1160px",
+                top: "10px",
+                // left: "1102.5px", /* ORIGINAL*/
+                left: "172.5px",
                 padding: "7.5px",
                 border: "2px solid black",
                 zIndex: 2,
                 cursor: "pointer",         // Change cursor on hover to indicate it's clickable
-            }}
-        >
-        <span style={{ fontWeight: 'bold' }}> Redo </span>
-        <br/>
-            ➡️
-        </button>
-        
-        {/* User Interface - Allow for drawing */}
-        <canvas
-            ref={overlayCanvasRef}
-            style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            zIndex: 2,
-            pointerEvents: "none",
-            }}
-        />
+                }}
+            >
+                <span style={{ fontWeight: 'bold' }}>Tool Status: </span> 
+                <br /> {isPenActive ? "💡 Active" : "💤 Inactive"}
+            </button>
+
+            {/* User Interface - Allow for drawing */}
+            <canvas
+                onMouseDown={startDrawing}
+                onMouseUp={finishDrawing}
+                onMouseMove={draw}
+                onTouchStart={startDrawing}
+                onTouchEnd={finishDrawing}
+                onTouchMove={draw}
+                ref={drawingCanvasRef}
+                style={{ position: "absolute", top: 0, left: 0, zIndex: 1 }}
+            />
+
+            {/* Button to UNDO most recent action (pen/eraser) */}
+            <button onClick={setUndo}
+                style={{
+                    position: "absolute",
+                    top: "10px",
+                    // left: "1100px", /* ORIGINAL*/
+                    left: "300px",
+                    padding: "7.5px",
+                    border: "2px solid black",
+                    zIndex: 2,
+                    cursor: "pointer",         // Change cursor on hover to indicate it's clickable
+                }}
+            >
+            <span style={{ fontWeight: 'bold' }}> Undo </span>
+            <br/>
+                ⬅️
+            </button>
+            
+            {/* Button to REDO previously undone action (pen/eraser) */}
+            <button onClick={setRedo}
+                style={{
+                    position: "absolute",
+                    top: "10px",
+                    // left: "1160px", /* ORIGINAL*/
+                    left: "360px",
+                    padding: "7.5px",
+                    border: "2px solid black",
+                    zIndex: 2,
+                    cursor: "pointer",         // Change cursor on hover to indicate it's clickable
+                }}
+            >
+            <span style={{ fontWeight: 'bold' }}> Redo </span>
+            <br/>
+                ➡️
+            </button>
+            
+            {/* User Interface - Allow for drawing */}
+            <canvas
+                ref={overlayCanvasRef}
+                style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                zIndex: 2,
+                pointerEvents: "none",
+                }}
+            />
+            <br/>
+            <br/>
+
         </div>
+        
     );
 }
 
