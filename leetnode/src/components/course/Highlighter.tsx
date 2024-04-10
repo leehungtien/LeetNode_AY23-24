@@ -7,24 +7,6 @@ export default function Highlighter() {
   const [isEraserActive, setIsEraserActive] = useState(false);
   
   useEffect(() => {
-    // Helper function to check if an element or any of its parents has a specific class
-    const hasClass = (node: Node, className: string) => {
-      // Loop until you find the parent element or reach the top of the document
-      while (node !== null && node !== document) {
-        // Check if the node is an Element and has the class
-        if (node instanceof Element && node.classList.contains(className)) {
-          return true;
-        }
-        // Before moving to the parent node, check that parentNode is not null
-        if (node.parentNode) {
-          node = node.parentNode;
-        } else {
-          // If parentNode is null, break the loop to avoid assigning null to node
-          break;
-        }
-      }
-      return false;
-    };
     const handleMouseUp = () => {
       if (isEraserActive) {
         const selection = window.getSelection();
@@ -47,25 +29,7 @@ export default function Highlighter() {
         const selection = window.getSelection();
         if (!selection || selection.isCollapsed) return;
         const range = selection.getRangeAt(0);
-
-        // Extend the isNodeEmpty function to consider ql-formula as non-empty
-        const isNodeEmpty = (node: Element) => {
-          // Check for ql-formula elements
-          if (hasClass(node, 'ql-formula')) {
-            return false;
-          }
-          // Function to check if a node is empty (contains only whitespace)
-          function isNodeEmpty(node: Node): boolean {
-            if (node.nodeType === Node.TEXT_NODE) {
-              return !node.textContent || /^\s*$/.test(node.textContent);
-            } else if (node.nodeType === Node.ELEMENT_NODE) {
-              const element = node as HTMLElement;
-              return !element.innerText || /^\s*$/.test(element.innerText);
-            }
-            return true;
-}
-        };
-    
+  
         const selectionContents = range.cloneContents();
         const textNodes = Array.from(selectionContents.childNodes).filter(node => 
           node.nodeType === Node.TEXT_NODE && node.textContent && node.textContent.trim().length > 0
@@ -73,14 +37,11 @@ export default function Highlighter() {
         const nodes = Array.from(selectionContents.querySelectorAll('*'));
   
         const containsImage = nodes.some(node => node.nodeName === 'IMG');
-        // Modify containsNonImageElementOrText to consider ql-formula
-        const containsNonImageElementOrText = textNodes.length > 0 || nodes.some(node => {
-          return hasClass(node, 'ql-formula') ||
-          (node.nodeType === Node.TEXT_NODE && (node.textContent?.trim() ?? '').length > 0) ||
-          (node.nodeType === Node.ELEMENT_NODE && node.nodeName !== 'IMG' && !isNodeEmpty(node));
-        });
-        
-        
+        const containsNonImageElementOrText = textNodes.length > 0 || nodes.some(node =>
+          (node.nodeType === Node.TEXT_NODE && node.textContent && node.textContent.trim().length > 0) ||
+          (node.nodeType === Node.ELEMENT_NODE && node.nodeName !== 'IMG')
+        );
+  
         console.log('containsImage:', containsImage, 'containsNonImageElementOrText:', containsNonImageElementOrText);
         
         if (containsImage && containsNonImageElementOrText) {
@@ -91,51 +52,24 @@ export default function Highlighter() {
           window.getSelection()?.removeAllRanges(); // Clear the selection to prevent accidental highlighting
         } else if (!containsImage && containsNonImageElementOrText) {
           const selection = window.getSelection();
+
+          // Check if selection is not null and rangeCount is more than 0
+          if (selection && selection.rangeCount) {
+            const range = selection.getRangeAt(0);
+            const selectedContent = range.extractContents();
         
-          // Use a timeout to allow the browser to update the selection
-          setTimeout(() => {
-            if (selection && selection.rangeCount) {
-              const range = selection.getRangeAt(0);
-
-          // Get the start and end containers from the range
-          const startContainer = range.startContainer;
-          const endContainer = range.endContainer;
-
-          // Check if the start and end containers or their parents have the 'ql-formula' class
-          let validStart = startContainer instanceof Element && hasClass(startContainer, 'ql-formula') || 
-                          startContainer.nodeType === Node.TEXT_NODE && startContainer.parentNode instanceof Element && hasClass(startContainer.parentNode, 'ql-formula');
-          let validEnd = endContainer instanceof Element && hasClass(endContainer, 'ql-formula') || 
-                        endContainer.nodeType === Node.TEXT_NODE && endContainer.parentNode instanceof Element && hasClass(endContainer.parentNode, 'ql-formula');
-
-                  
-              const startParent = range.startContainer.parentNode;
-              const endParent = range.endContainer.parentNode;
-
-            
-              // Check if the selection is within the same container and that container is allowed
-              // Add check for ql-formula here as well
-              const isWithinSameContainer = startParent instanceof Element &&
-                                            endParent instanceof Element &&
-                                            startParent.isSameNode(endParent) &&
-                                            (startParent.matches('p, div, label, span, b, i') || hasClass(startParent, 'ql-formula'));
-
-
-              if (isWithinSameContainer) {
-                // Proceed to highlight the text
-                const selectedContent = range.extractContents();
-                const highlightSpan = document.createElement('span');
-                highlightSpan.style.backgroundColor = highlightColor;
-                highlightSpan.appendChild(selectedContent);
-                range.insertNode(highlightSpan);
-                selection.removeAllRanges();
-              } else {
-                // Alert the user and clear the selection
-                alert('Cannot highlight across different elements.');
-                selection.removeAllRanges();
-                return; // Exit the function to prevent further execution
-              }
-            }
-          }, 0);
+            // Create a new span for the highlight
+            const highlightSpan = document.createElement('span');
+            highlightSpan.style.backgroundColor = highlightColor;
+            highlightSpan.appendChild(selectedContent);
+            range.insertNode(highlightSpan);
+        
+            // Clean up by removing any potential empty text nodes
+            highlightSpan.normalize();
+        
+            // Clear the selection to prevent accidental highlighting
+            selection.removeAllRanges();
+          }
         }
       }
     };
@@ -179,55 +113,56 @@ export default function Highlighter() {
   const confirmColorSelection = () => {
     setHighlightColor(selectedColor);
   };
+  
   return (
     <div>
-      {
-        /* <p style={{ color: '#555', fontSize: '1rem', marginBottom: '1rem' }}>Please highlight only the text in the question.</p> */
-      }
-      <button
-        type="button" // This ensures the button does not submit the form in PracQuestions.tsx
-        onClick={toggleHighlighter}
-        style={{
-          backgroundColor: '#15aabf', // No background color for a transparent button
-          fontSize: '1rem', // Extra-large text size
-          marginBottom: '0.5rem', // Extra-small margin-bottom
-          fontWeight: 500, // Bold font weight
-          color: 'white', // Cyan text color
-          border: 'none', // No border for the button
-          padding: '8px 16px', // Standard padding; adjust as needed
-          outline: 'none', // Remove outline on focus
-          cursor: 'pointer', // Change cursor to pointer to indicate it's a button
-          borderRadius: '10px', // Adjust this value to get the desired roundness of corners
-        }}
-      >
-          {isActive ? 'Deactivate Highlighter' : 'Activate Highlighter'}
-        </button>
-        {isActive && (
-          <>
-            <div style={{ display: 'inline-block' }}> {/* Add inline-block display */}
-              <button 
-                type="button" // This ensures the button does not submit the form in PracQuestions.tsx
-                onClick={undoHighlight}>Erase All Highlighting</button>
-              <button
-                type="button" // This ensures the button does not submit the form in PracQuestions.tsx 
-                onClick={toggleEraser}>
-                {isEraserActive ? 'Deactivate Eraser' : 'Activate Eraser'}
-              </button>
-            </div>
-            <div>
-              <label htmlFor="colorPicker">Select Highlight Color: </label>
-              <input
-                type="color"
-                id="colorPicker"
-                value={selectedColor}
-                onChange={handleColorChange}
-              />
-              <button 
-                type="button" // This ensures the button does not submit the form in PracQuestions.tsx
-                onClick={confirmColorSelection}>Confirm</button>
-            </div>
-          </>
-        )}
-      </div>
-    );
-  }
+      <p>Hold down to highlight text and numbers once the highlighter is activated. </p> {/* Add text here */}
+      <p>Click confirm after choosing a color to apply the change. </p> {/* Add text here */}
+      <br /> {/* Add a new line here */}
+    <button
+      type="button" // This ensures the button does not submit the form in PracQuestions.tsx
+      onClick={toggleHighlighter}
+      style={{
+        backgroundColor: '#15aabf', // No background color for a transparent button
+        fontSize: '1rem', // Extra-large text size
+        marginBottom: '0.5rem', // Extra-small margin-bottom
+        fontWeight: 500, // Bold font weight
+        color: 'white', // Cyan text color
+        border: 'none', // No border for the button
+        padding: '8px 16px', // Standard padding; adjust as needed
+        outline: 'none', // Remove outline on focus
+        cursor: 'pointer', // Change cursor to pointer to indicate it's a button
+        borderRadius: '10px', // Adjust this value to get the desired roundness of corners
+      }}
+    >
+        {isActive ? 'Highlighter OFF' : 'Highlighter ON'}
+      </button>
+      {isActive && ( 
+        <>
+          <div style={{ display: 'inline-block' }}> {/* Add inline-block display */}
+            <button 
+              type="button" // This ensures the button does not submit the form in PracQuestions.tsx
+              onClick={undoHighlight}>Undo All Highlights 🔄</button>
+            <button
+              type="button" // This ensures the button does not submit the form in PracQuestions.tsx 
+              onClick={toggleEraser}>
+              {isEraserActive ? 'Eraser 🔴 OFF' : 'Eraser 🟢 ON'}
+            </button>
+          </div>
+          <div>
+            <label htmlFor="colorPicker">Select Highlight Color: </label>
+            <input
+              type="color"
+              id="colorPicker"
+              value={selectedColor}
+              onChange={handleColorChange}
+            />
+            <button 
+              type="button" // This ensures the button does not submit the form in PracQuestions.tsx
+              onClick={confirmColorSelection}>Confirm ✅</button> 
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
