@@ -1,6 +1,5 @@
 import axios from "axios";
 import DOMPurify from "dompurify";
-
 import { UCQATAnswersType } from "@/components/course/PracticeQuestion";
 import VariablesBox from "@/components/editor/VariablesBox";
 import Latex from "@/components/Latex";
@@ -53,15 +52,17 @@ const QuestionHistory = ({ courseSlug }: { courseSlug: string }) => {
   if (!attempts) {
     return (
       <Center className="h-[calc(100vh-180px)]">
-        <Loader />
+        <Loader data-testid='loader' />
       </Center>
     );
   }
 
   if (attempts.data.length === 0) {
     return (
-      <Center className="h-[calc(100vh-180px)]">
-        <Text>You have not attempted any questions from this course yet.</Text>
+      <Center className="h-[calc(100vh-180px)]" data-testid="test">
+        <Text>
+          You have not attempted any questions from this course yet.
+        </Text>
       </Center>
     );
   }
@@ -130,9 +131,8 @@ const QuestionHistory = ({ courseSlug }: { courseSlug: string }) => {
                       value:
                         100 - (numCorrectAttempts / attempts.data.length) * 100,
                       color: theme.colors.red[7],
-                      tooltip: `${
-                        attempts.data.length - numCorrectAttempts
-                      } Incorrect`,
+                      tooltip: `${attempts.data.length - numCorrectAttempts
+                        } Incorrect`,
                     },
                   ]}
                   label={
@@ -157,9 +157,8 @@ const QuestionHistory = ({ courseSlug }: { courseSlug: string }) => {
         <Paper
           withBorder
           radius="lg"
-          className={`${classes.card} ${
-            attempt.isCorrect ? classes.correct : classes.wrong
-          }`}
+          className={`${classes.card} ${attempt.isCorrect ? classes.correct : classes.wrong
+            }`}
           mb="xl"
           key={attempt.attemptId}
         >
@@ -211,11 +210,10 @@ const QuestionHistory = ({ courseSlug }: { courseSlug: string }) => {
               <Flex
                 gap="sm"
                 key={ans.answerContent}
-                className={`my-2 ${classes.options} ${
-                  (attempt.attemptedKeys as string[]).includes(ans.key)
-                    ? classes.selected
-                    : ""
-                }`}
+                className={`my-2 ${classes.options} ${(attempt.attemptedKeys as string[]).includes(ans.key)
+                  ? classes.selected
+                  : ""
+                  }`}
               >
                 {ans.isCorrect === true ? (
                   <IconCheck color="green" size={30} stroke={3} />
@@ -235,56 +233,55 @@ const QuestionHistory = ({ courseSlug }: { courseSlug: string }) => {
             attempt.questionWithAddedTime.question
               .questionData as QuestionDataType
           ).methods && (
-            <>
-              <Divider my="xl" variant="dashed" />
-              <Accordion variant="contained" radius="md">
-                <Accordion.Item value="solution">
-                  <Accordion.Control>Solution</Accordion.Control>
-                  <Accordion.Panel>
-                    <Stack>
-                      {(
-                        attempt.questionWithAddedTime.question
-                          .questionData as QuestionDataType
-                      ).methods.map((method, index) => (
-                        <Stack
-                          key={index}
-                          spacing="md"
-                          p="md"
-                          className={
-                            theme.colorScheme === "dark"
-                              ? "rounded-md bg-gray-700"
-                              : "rounded-md bg-gray-100"
-                          }
-                        >
-                          <Flex gap="md" align="center">
-                            <Text color="dimmed">#{index + 1}</Text>
-                            <Box
-                              sx={{ flex: 2, alignSelf: "stretch" }}
-                              className={`flex items-center justify-center rounded-md border border-solid ${
-                                theme.colorScheme === "dark"
+              <>
+                <Divider my="xl" variant="dashed" />
+                <Accordion variant="contained" radius="md">
+                  <Accordion.Item value="solution">
+                    <Accordion.Control>Solution</Accordion.Control>
+                    <Accordion.Panel>
+                      <Stack>
+                        {(
+                          attempt.questionWithAddedTime.question
+                            .questionData as QuestionDataType
+                        ).methods.map((method, index) => (
+                          <Stack
+                            key={index}
+                            spacing="md"
+                            p="md"
+                            className={
+                              theme.colorScheme === "dark"
+                                ? "rounded-md bg-gray-700"
+                                : "rounded-md bg-gray-100"
+                            }
+                          >
+                            <Flex gap="md" align="center">
+                              <Text color="dimmed">#{index + 1}</Text>
+                              <Box
+                                sx={{ flex: 2, alignSelf: "stretch" }}
+                                className={`flex items-center justify-center rounded-md border border-solid ${theme.colorScheme === "dark"
                                   ? "border-slate-800 bg-slate-800"
                                   : "border-slate-300 bg-slate-200"
-                              } py-1.5`}
-                            >
-                              <Latex>{`$$ ${method.expr} $$`}</Latex>
-                            </Box>
-                          </Flex>
-                          {method.explanation !== undefined && (
-                            <Flex gap="md" align="center">
-                              <IconHelp stroke={1.5} size={20} />
-                              <Text sx={{ flex: 1 }} fz="sm">
-                                {method.explanation}
-                              </Text>
+                                  } py-1.5`}
+                              >
+                                <Latex>{`$$ ${method.expr} $$`}</Latex>
+                              </Box>
                             </Flex>
-                          )}
-                        </Stack>
-                      ))}
-                    </Stack>
-                  </Accordion.Panel>
-                </Accordion.Item>
-              </Accordion>
-            </>
-          )}
+                            {method.explanation !== undefined && (
+                              <Flex gap="md" align="center">
+                                <IconHelp stroke={1.5} size={20} />
+                                <Text sx={{ flex: 1 }} fz="sm">
+                                  {method.explanation}
+                                </Text>
+                              </Flex>
+                            )}
+                          </Stack>
+                        ))}
+                      </Stack>
+                    </Accordion.Panel>
+                  </Accordion.Item>
+                </Accordion>
+              </>
+            )}
         </Paper>
       ))}
     </>

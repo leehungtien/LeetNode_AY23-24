@@ -120,9 +120,9 @@ export default function MasteryBar({ data }: TableSortProps) {
   };
 
   const rows = sortedData?.map((row) => (
-    <tr key={row.topicName}>
-      <td>{row.topicName}</td>
-      <td>
+    <tr key={row.topicName} data-testid="topic-row">
+      <td className="topic-cell">{row.topicName}</td>
+      <td className="mastery-cell">
         <Group position="apart">
           <Text size="xs" color="cyan" weight={700}>
             {row.masteryLevel}%

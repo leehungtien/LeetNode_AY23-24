@@ -1,66 +1,68 @@
-#This is an optional tag. This will be the workflow name appearing on the Actions tab of your git repo
 name: LeetNode Workflow
 
-#Specifies the trigger for this workflow. This workflow will be triggered on push event, 
-#that is every time someone pushes a change to the repository or merges a pull request. 
-#This is triggered by a push to every branch; for examples of syntax that runs only on 
-#pushes to specific branches, paths, or tags, see "Workflow syntax for GitHub Actions."
+on:
+  push:
+    branches:
+      - main
+      - release/CICD_flow
+  workflow_dispatch:
 
-on: [push]
-
-#Groups together all the jobs that run in the Demo Workflow workflow.
 jobs:
-  #Defines a job named build. The child keys will define properties of the job.
   build-and-test:
-    #Configures the job to run on the latest version of an Ubuntu Linux runner.
     runs-on: ubuntu-latest
 
-    #Groups together all the steps that run in the check-bats-version job. 
-    #Each item nested under this section is a separate action or shell script.
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SHADOW_DATABASE_URL: ${{ secrets.SHADOW_DATABASE_URL }}
+      CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
+      CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+      CLOUDINARY_SECRET: ${{ secrets.CLOUDINARY_SECRET }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      RECOMMENDER_URL: ${{ secrets.RECOMMENDER_URL }}
+      RECOMMENDER_API_KEY: ${{ secrets.RECOMMENDER_API_KEY }}
+      GMAIL: ${{ secrets.GMAIL }}
+      GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
+      EMAIL_SERVER: ${{ secrets.EMAIL_SERVER }}
+      EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+      ACTION_KEY: ${{ secrets.ACTION_KEY }}
+
     steps:
-      #The uses keyword specifies that this step will run v4 of the actions/checkout action. 
-      #This is an action that checks out your repository onto the runner, 
-      #allowing you to run scripts or other actions against your code (such as build and test tools). 
-      #You should use the checkout action any time your workflow will run against the repository's code.
-      - uses: actions/checkout@v4
-      - name: Set up Node.js
-        #This step uses the actions/setup-node to set up node.js
-        uses: actions/setup-node@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          node-version: '20'
+          fetch-depth: 0 # This will fetch all history for better caching
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3 
+        with:
+          node-version: '20' # Adjust to your preferred Node.js version
 
       - name: Install dependencies
-        #The run keyword tells the job to execute a command on the runner.
-        run: |
-          npm install
-      
+        run: npm install --prefix leetnode
+
       - name: Build
-        run: npm run build
+        run: npm run build --prefix leetnode
 
       - name: Test
-        run: npm run test
+        run: npm test --prefix leetnode
 
       - name: Lint with Next lint
-        run: npm run lint
+        run: npm run lint --prefix leetnode
 
-      # - name: Test with unittest
-      #   #runs the unittest
-      #   run: |
-      #     python tdd/courses_integration_tests.py
-      #     python tdd/learning_journey_integration_tests.py
-      #     python tdd/registration_integration_tests.py
-      #     python tdd/roles_integration_tests.py
-      #     python tdd/skills_integration_tests.py
-      #     python tdd/unit_testing.py
+  # deploy-to-vercel:
+  #   needs: build-and-test
+  #   runs-on: ubuntu-latest
 
-    deploy-to-vercel:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Deploy to Vercel
-        uses: vercel/vercel-action@v3
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org: ${{ secrets.VERCEL_ORG }}
-          vercel-project: ${{ secrets.VERCEL_PROJECT }}
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+
+  #     - name: Deploy to Vercel
+  #       uses: vercel/vercel-action@v3
+  #       with:
+  #         vercel-token: ${{ secrets.VERCEL_TOKEN }}
+  #         vercel-org: ${{ secrets.VERCEL_ORG }}
+  #         vercel-project: ${{ secrets.VERCEL_PROJECT }}

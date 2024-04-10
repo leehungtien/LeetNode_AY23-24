@@ -115,7 +115,7 @@ export default function Account({ userInfo }: AccountProps) {
   return (
     <>
       <h1 className="text-center">Account Settings</h1>
-      <hr className="my-4 h-px border-0 bg-gray-200" />
+      <hr className="my-4 h-px border-0 bg-gray-200" data-testid='hr' />
       <form
         onSubmit={form.onSubmit(
           () => {
@@ -134,8 +134,9 @@ export default function Account({ userInfo }: AccountProps) {
             src={userInfo?.image}
             radius={100}
             className="mb-3"
+            data-testid='avatar'
           />
-        </Center>
+        </Center >
         <FileInput
           placeholder="Browse image"
           label="Change profile picture"
@@ -178,7 +179,7 @@ export default function Account({ userInfo }: AccountProps) {
             Reset
           </Button>
         </Group>
-      </form>
+      </form >
     </>
   );
 }
@@ -188,29 +189,29 @@ const useStyles = createStyles((theme) => ({
     backgroundColor:
       theme.colorScheme === "dark"
         ? theme.fn.variant({
-            variant: "light",
-            color: theme.primaryColor,
-          }).background
+          variant: "light",
+          color: theme.primaryColor,
+        }).background
         : theme.fn.variant({
-            variant: "filled",
-            color: theme.primaryColor,
-          }).background,
+          variant: "filled",
+          color: theme.primaryColor,
+        }).background,
     color:
       theme.colorScheme === "dark"
         ? theme.fn.variant({ variant: "light", color: theme.primaryColor })
-            .color
+          .color
         : theme.fn.variant({ variant: "filled", color: theme.primaryColor })
-            .color,
+          .color,
   },
   cancel: {
     backgroundColor:
       theme.colorScheme === "dark"
         ? theme.fn.variant({
-            variant: "light",
-          }).background
+          variant: "light",
+        }).background
         : theme.fn.variant({
-            variant: "white",
-          }).background,
+          variant: "white",
+        }).background,
     color:
       theme.colorScheme === "dark"
         ? theme.fn.variant({ variant: "light" }).color

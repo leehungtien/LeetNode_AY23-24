@@ -73,13 +73,15 @@ const Settings = () => {
     ],
   });
 
-  if (!users || !topics) {
-    return (
-      <Center className="h-screen">
+if (!users || !topics) {
+  return (
+    <Center className="h-screen">
+      <div data-testid="loader">
         <Loader />
-      </Center>
-    );
-  }
+      </div>
+    </Center>
+  );
+}
 
   const transformedTopics = topics.data.map(({ topicSlug, topicName }) => ({
     value: topicSlug,
