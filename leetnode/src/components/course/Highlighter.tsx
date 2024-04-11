@@ -113,6 +113,7 @@ export default function Highlighter() {
   const confirmColorSelection = () => {
     setHighlightColor(selectedColor);
   };
+  
   return (
     <div>
     <button
@@ -129,20 +130,21 @@ export default function Highlighter() {
         outline: 'none', // Remove outline on focus
         cursor: 'pointer', // Change cursor to pointer to indicate it's a button
         borderRadius: '10px', // Adjust this value to get the desired roundness of corners
-      }}
+      }} 
+    
     >
-        {isActive ? 'Deactivate Highlighter' : 'Activate Highlighter'}
+        {isActive ? 'Highlighter OFF' : 'Highlighter ON'}
       </button>
-      {isActive && (
+      {isActive && ( 
         <>
           <div style={{ display: 'inline-block' }}> {/* Add inline-block display */}
             <button 
               type="button" // This ensures the button does not submit the form in PracQuestions.tsx
-              onClick={undoHighlight}>Erase All Highlighting</button>
+              onClick={undoHighlight}>Undo All Highlights 🔄</button>
             <button
               type="button" // This ensures the button does not submit the form in PracQuestions.tsx 
               onClick={toggleEraser}>
-              {isEraserActive ? 'Deactivate Eraser' : 'Activate Eraser'}
+              {isEraserActive ? 'Eraser 🔴 OFF' : 'Eraser 🟢 ON'}
             </button>
           </div>
           <div>
@@ -155,7 +157,7 @@ export default function Highlighter() {
             />
             <button 
               type="button" // This ensures the button does not submit the form in PracQuestions.tsx
-              onClick={confirmColorSelection}>Confirm</button>
+              onClick={confirmColorSelection}>Confirm ✅</button> 
           </div>
         </>
       )}

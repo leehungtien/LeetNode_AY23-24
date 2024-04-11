@@ -251,18 +251,22 @@ export default function PracticeQuestion() {
 
         
         <br/> 
-        Guidelines for using Highlighter/Annotation(Canvas) tools: 
+        Guidelines for using Highlighter and Canvas tools: 
             <br/>  
-            - When Canvas Tool is 'inactive', highlighting is permitted only when activated.
+            - When the Canvas Tool is inactive, highlighting is allowed upon activation.
             <br/> 
-            - When Canvas Tool is 'active', highlighting is not permitted even when activated.
+            - When the Canvas Tool is active, highlighting is disabled.
             <br/> 
-            - When drawing using the annotative Canvas Tool, you can disable the tool to temporarily clear your drawings. <br/>
-            (You can re-enable it afterwards, for your annotations or drawings to reappear.)
+            - While drawing with the Canvas Tool, temporarily disable it to clear your drawings, which can be re-enabled later to restore your drawings.
+            <br/> 
+            - Hold down to highlight text and numbers once the highlighter is activated.
+            <br/> 
+            - Click confirm after choosing a color to apply the change.
+            <br/> 
+            Note: You can only select answer options when Canvas Tool is disabled!
             <br/> 
             <br/>
-            Note: You can only select answer options when Canvas Tool is disabled!
-        
+
         <div className="rawhtml mt-4 relative" style={{ position: 'relative' }}>
           
           <Highlighter/>
