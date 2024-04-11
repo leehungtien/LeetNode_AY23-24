@@ -29,17 +29,7 @@ export default function Highlighter() {
         const selection = window.getSelection();
         if (!selection || selection.isCollapsed) return;
         const range = selection.getRangeAt(0);
-        const selectedText = range.toString();
-
-        console.log('selectedText:', selectedText);
-        
-        // // Check if the selection includes the text "MEDIUM DIFFICULTY"
-        // if (selectedText.includes('MEDIUM DIFFICULTY')) {
-        //   alert('Highlighting "MEDIUM DIFFICULTY" is not allowed.');
-        //   window.getSelection()?.removeAllRanges(); // Clear the selection to prevent accidental highlighting
-        //   return; // Exit the function to prevent highlighting
-        // }
-    
+  
         const selectionContents = range.cloneContents();
         const textNodes = Array.from(selectionContents.childNodes).filter(node => 
           node.nodeType === Node.TEXT_NODE && node.textContent && node.textContent.trim().length > 0
@@ -62,6 +52,7 @@ export default function Highlighter() {
           window.getSelection()?.removeAllRanges(); // Clear the selection to prevent accidental highlighting
         } else if (!containsImage && containsNonImageElementOrText) {
           const selection = window.getSelection();
+
           // Check if selection is not null and rangeCount is more than 0
           if (selection && selection.rangeCount) {
             const range = selection.getRangeAt(0);
@@ -122,6 +113,7 @@ export default function Highlighter() {
   const confirmColorSelection = () => {
     setHighlightColor(selectedColor);
   };
+  
   return (
     <div>
     <button
@@ -138,20 +130,21 @@ export default function Highlighter() {
         outline: 'none', // Remove outline on focus
         cursor: 'pointer', // Change cursor to pointer to indicate it's a button
         borderRadius: '10px', // Adjust this value to get the desired roundness of corners
-      }}
+      }} 
+    
     >
-        {isActive ? 'Deactivate Highlighter' : 'Activate Highlighter'}
+        {isActive ? 'Highlighter: ACTIVE' : 'Highlighter: INACTIVE'}
       </button>
-      {isActive && (
+      {isActive && ( 
         <>
           <div style={{ display: 'inline-block' }}> {/* Add inline-block display */}
             <button 
               type="button" // This ensures the button does not submit the form in PracQuestions.tsx
-              onClick={undoHighlight}>Erase All Highlighting</button>
+              onClick={undoHighlight}>Undo All Highlights 🔄</button>
             <button
               type="button" // This ensures the button does not submit the form in PracQuestions.tsx 
               onClick={toggleEraser}>
-              {isEraserActive ? 'Deactivate Eraser' : 'Activate Eraser'}
+              {isEraserActive ? 'Eraser: 🟢 ON' : 'Eraser: 🔴 OFF'}
             </button>
           </div>
           <div>
@@ -164,7 +157,7 @@ export default function Highlighter() {
             />
             <button 
               type="button" // This ensures the button does not submit the form in PracQuestions.tsx
-              onClick={confirmColorSelection}>Confirm</button>
+              onClick={confirmColorSelection}>Confirm ✅</button> 
           </div>
         </>
       )}
