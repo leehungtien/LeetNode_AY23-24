@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from "react";
 
 export default function Highlighter() {
   const [isActive, setIsActive] = useState(false);
@@ -133,7 +133,7 @@ export default function Highlighter() {
       }} 
     
     >
-        {isActive ? 'Highlighter OFF' : 'Highlighter ON'}
+        {isActive ? 'Highlighter: ACTIVE' : 'Highlighter: INACTIVE'}
       </button>
       {isActive && ( 
         <>
@@ -144,7 +144,7 @@ export default function Highlighter() {
             <button
               type="button" // This ensures the button does not submit the form in PracQuestions.tsx 
               onClick={toggleEraser}>
-              {isEraserActive ? 'Eraser 🔴 OFF' : 'Eraser 🟢 ON'}
+              {isEraserActive ? 'Eraser: 🟢 ON' : 'Eraser: 🔴 OFF'}
             </button>
           </div>
           <div>
