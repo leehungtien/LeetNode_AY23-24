@@ -322,7 +322,9 @@ def update_state_of_student(
         elif (
             student_id not in app.state.roster.skill_rosters[topic].students
         ):  # Add student if doesn't exist in the Roster
-            app.state.roster.add_students(topic, student_id)
+            print(f"Name: {student_id}")# Testing
+            app.state.roster.add_students(topic, [student_id])
+
 
         app.state.roster.update_state(
             topic, student_id, np.array([int(i) for i in correct])
@@ -358,7 +360,9 @@ def update_multiple_states_of_student(
             elif (
                 student_id not in app.state.roster.skill_rosters[topic].students
             ):  # Add student if doesn't exist in the Roster
-                app.state.roster.add_students(topic, student_id)
+                print(f"Name: {student_id}")# Testing
+                app.state.roster.add_students(topic, [student_id])
+
 
             app.state.roster.update_state(
                 topic, student_id, np.array([int(i) for i in topics.topics[topic]])
